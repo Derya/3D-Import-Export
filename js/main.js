@@ -7,67 +7,14 @@ import { mapTexture } from './mapTexture';
 import { getTween, memoize } from './utils';
 import topojson from 'topojson';
 import THREE from 'THREE';
+import * as orbitControls from 'OrbitControls';
 import d3 from 'd3';
+import { arcpath } from './arc';
 
-function getCurveObject(fLat, fLong, tLat, tLong)
-{
-  ////// calculating 3d points for FROM point
-  var phiFrom = fLat * Math.PI / 180;
-  var thetaFrom = (fLong - 90) * Math.PI / 180;
-  var xF = GLOBE_RADIUS * Math.cos(phiFrom) * Math.sin(thetaFrom);
-  var yF = GLOBE_RADIUS * Math.sin(phiFrom);
-  var zF = GLOBE_RADIUS * Math.cos(phiFrom) * Math.cos(thetaFrom);
-  ///// identical calculates for TO point
-  var phiTo = tLat * Math.PI / 180;
-  var thetaTo = (tLong - 90) * Math.PI / 180;
-  var xT = GLOBE_RADIUS * Math.cos(phiTo) * Math.sin(thetaTo);
-  var yT = GLOBE_RADIUS * Math.sin(phiTo);
-  var zT = GLOBE_RADIUS * Math.cos(phiTo) * Math.cos(thetaTo);
-  // save as vectors
-  var vT = new THREE.Vector3(xT, yT, zT);
-  var vF = new THREE.Vector3(xF, yF, zF);
-  // calculate distance
-  var dist = vF.distanceTo(vT);
-  // here we are creating the control points for the first ones.
-  // the 'c' in front stands for control.
-  var cvT = vT.clone();
-  var cvF = vF.clone();
-  // then you get the half point of the vectors points.
-  var xC = ( 0.5 * (vF.x + vT.x) );
-  var yC = ( 0.5 * (vF.y + vT.y) );
-  var zC = ( 0.5 * (vF.z + vT.z) );
-  // then we create a vector for the midpoints.
-  var mid = new THREE.Vector3(xC, yC, zC);
+// The OrbitControls node module uses module.export instead of ES6 module syntax
+console.log(orbitControls);
 
-  ////////////////////////// some more curve magic i guess????
-  var smoothDist = map(dist, 0, 10, 0, 15/dist );
-  mid.setLength( GLOBE_RADIUS * smoothDist );
-  cvT.add(mid);
-  cvF.add(mid);
-  cvT.setLength( GLOBE_RADIUS * smoothDist );
-  cvF.setLength( GLOBE_RADIUS * smoothDist );
-  ////////////////////////// end curve magic
-  // create curve object
-  var curve = new THREE.CubicBezierCurve3( vF, cvF, cvT, vT );
- 
-  // create curve geometry
-  var geometry2 = new THREE.Geometry();
-  geometry2.vertices = curve.getPoints( 50 );
-  var material2 = new THREE.LineBasicMaterial( { color : 'orange' } );
-
-  // CREATING ACTUAL 3D OBJECT TO RENDER:::
-  var blargh = new THREE.Line( geometry2, material2 );
-  return blargh;
-  // added to scene a bit further below 
-
-  // important: we need to save the paths for adding graphics to them::
-  // paths.push(curve);
-
-  // END HACKED IN ROUTES TESTING
-}
-
-
-function map( x,  in_min,  in_max,  out_min,  out_max){return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;}
+const OrbitControls = orbitControls.default(THREE);
 
 function getCountryByFullName(query, arr) {
   return arr.find(function(blah) {return blah.id == query});
@@ -81,8 +28,7 @@ function getCountryByLongCode(query, arr) {
 
 d3.json('data/world.json', function (err, data) {
 
-  d3.select("#loading").transition().duration(500)
-    .style("opacity", 0).remove();
+  d3.select("#loading").transition().duration(500).style("opacity", 0).remove();
 
   var currentCountry, overlay;
 
@@ -116,10 +62,15 @@ d3.json('data/world.json', function (err, data) {
 
   // create a container node and add all our curves to it
   var curves = new THREE.Object3D();
+
+  // its india!
   var india = getCountryByFullName("India", countryArr);
 
+  // we're going to draw a line from india to every other place for testing
   countryArr.forEach(function(country){
-    curves.add(getCurveObject(country.lat, country.long, india.lat, india.long));
+    arcpath(country.lat, country.long, india.lat, india.long, function(err, data) {
+      curves.add(data);
+    });
   });
 
   // create a container node and add all our meshes
@@ -138,6 +89,7 @@ d3.json('data/world.json', function (err, data) {
     // Get new camera position
     var temp = new THREE.Mesh();
     temp.position.copy(convertToXYZ(latlng, 900));
+    console.log(root.position);
     temp.lookAt(root.position);
     temp.rotateY(Math.PI);
 
@@ -174,9 +126,9 @@ d3.json('data/world.json', function (err, data) {
       d3.select("#msg").html(country.code);
 
        // Overlay the selected country
-      map = textureCache(country.code, 'red');
-      material = new THREE.MeshPhongMaterial({map: map, transparent: true});
-      if (!overlay) {
+       map = textureCache(country.code, 'red');
+       material = new THREE.MeshPhongMaterial({map: map, transparent: true});
+       if (!overlay) {
         overlay = new THREE.Mesh(new THREE.SphereGeometry(201, 40, 40), material);
         overlay.rotation.y = Math.PI;
         root.add(overlay);
@@ -190,8 +142,18 @@ d3.json('data/world.json', function (err, data) {
   setEvents(camera, [baseGlobe], 'mousemove', 10);
 });
 
+var controls = new OrbitControls(camera);
+controls.enablePan = true;
+controls.enableZoom = true;
+controls.enableRotate = true;
+controls.minDistance = 900;
+controls.maxDistance = 1500;
+controls.minPolarAngle = 0;
+controls.maxPolarAngle = Math.PI;
+
 function animate() {
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
 }
+
 animate();

@@ -5,7 +5,8 @@
   "main": "index.js",
   "dependencies": {
     "d3": "^3.5.5",
-    "three": "^0.71.0"
+    "three": "^0.71.0",
+    "three-orbit-controls": "^72.0.0"
   },
   "devDependencies": {
     "babel": "^5.4.3",
