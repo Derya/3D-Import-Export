@@ -17,7 +17,7 @@ function findVector(latitude, longitude){
 }
 
 
-function distance(fromLatitude, fromLongitude, toLatitude, toLongitude, callback){
+function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, callback){
   
   var phiFrom = fromLatitude * Math.PI / 180;
   var thetaFrom = (fromLongitude - 90) * Math.PI / 180;
@@ -82,5 +82,5 @@ function distance(fromLatitude, fromLongitude, toLatitude, toLongitude, callback
 }
 
 export {
-  distance
+  arcpath
 };

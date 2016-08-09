@@ -6,7 +6,7 @@ import { getTween, memoize } from './utils';
 import topojson from 'topojson';
 import THREE from 'THREE';
 import d3 from 'd3';
-import { distance } from './arc';
+import { arcpath } from './arc';
 
 var GLOBE_RADIUS = 200;
 
@@ -58,7 +58,8 @@ d3.json('data/world.json', function (err, data) {
   var to = data[200];
   console.log(to);
 
-  distance(from.CapitalLatitude, from.CapitalLongitude, to.CapitalLatitude, to.CapitalLongitude, function(err, data){
+  
+  arcpath(from.CapitalLatitude, from.CapitalLongitude, to.CapitalLatitude, to.CapitalLongitude, function(err, data){
     console.log("callback");
     for(var i=0; i < data.length; i++){
       root.add(data[i]);
@@ -66,9 +67,11 @@ d3.json('data/world.json', function (err, data) {
     }
     console.log("add all component to root");
     console.log(root);
-    scene.add(root);
-
+    
   });
+
+  scene.add(root);
+
 });
 
   // var dataRecord = {
