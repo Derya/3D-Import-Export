@@ -55,20 +55,21 @@ d3.json('data/world.json', function (err, data) {
   // }
   var from = data[100]
   console.log(from);
-  var to = data[200];
+  var to = [data[200], data[105], data[50]];
   console.log(to);
 
-  
-  arcpath(from.CapitalLatitude, from.CapitalLongitude, to.CapitalLatitude, to.CapitalLongitude, function(err, data){
-    console.log("callback");
-    for(var i=0; i < data.length; i++){
-      root.add(data[i]);
-      console.log(data[i]);
-    }
-    console.log("add all component to root");
-    console.log(root);
-    
-  });
+  for(var i = 0 ; i < to.length; i++){
+    arcpath(from.CapitalLatitude, from.CapitalLongitude, to[i].CapitalLatitude, to[i].CapitalLongitude, function(err, data){
+      console.log("callback");
+      for(var i=0; i < data.length; i++){
+        root.add(data[i]);
+        console.log(data[i]);
+      }
+      console.log("add all component to root");
+      console.log(root);
+
+    });
+  }
 
   scene.add(root);
 
