@@ -16,6 +16,7 @@ function findVector(latitude, longitude){
   return v;
 }
 
+
 function distance(fromLatitude, fromLongitude, toLatitude, toLongitude, callback){
   
   var phiFrom = fromLatitude * Math.PI / 180;
