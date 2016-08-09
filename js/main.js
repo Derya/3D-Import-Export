@@ -5,11 +5,16 @@ import { mapTexture } from './mapTexture';
 import { getTween, memoize } from './utils';
 import topojson from 'topojson';
 import THREE from 'THREE';
+import * as orbitControls from 'OrbitControls';
 import d3 from 'd3';
 import { arcpath } from './arc';
 
-var GLOBE_RADIUS = 200;
+// The OrbitControls node module uses module.export instead of ES6 module syntax
+console.log(orbitControls);
 
+const OrbitControls = orbitControls.default(THREE);
+
+var GLOBE_RADIUS = 200;
 
 
 d3.json('data/world.json', function (err, data) {
@@ -44,55 +49,34 @@ d3.json('data/world.json', function (err, data) {
   var baseMap = new THREE.Mesh(new THREE.SphereGeometry(200, segments, segments), mapMaterial);
   baseMap.rotation.y = Math.PI;
 
-  // var from;
-  // var to;
 
+  // get geojson latitude and longitude
   d3.json('data/latlng.json', function(err, data){
-    console.log(data.length);
-  // for(var i =0; i < data.length ; i++){
-  //   console.log(data[i]);
+    // console.log(data.length);
+    var from = data[100]
+    // console.log(from);
+    var to = [data[200], data[105], data[50]];
+    // console.log(to);
 
-  // }
-  var from = data[100]
-  console.log(from);
-  var to = [data[200], data[105], data[50]];
-  console.log(to);
+    //iterate over the data given from backend
+    for(var i = 0 ; i < to.length; i++){
+      arcpath(from.CapitalLatitude, from.CapitalLongitude, to[i].CapitalLatitude, to[i].CapitalLongitude, function(err, data){
 
-  for(var i = 0 ; i < to.length; i++){
-    arcpath(from.CapitalLatitude, from.CapitalLongitude, to[i].CapitalLatitude, to[i].CapitalLongitude, function(err, data){
-      console.log("callback");
-      for(var i=0; i < data.length; i++){
-        root.add(data[i]);
-        console.log(data[i]);
-      }
-      console.log("add all component to root");
-      console.log(root);
+        console.log("callback");
+        data.scale.set(2.5,2.5,2.5);
+        scene.add(data);
 
-    });
-  }
+      });
+    }
 
-  scene.add(root);
-
-});
-
-  // var dataRecord = {
-  //   from: { // in india
-  //     lat: 19,
-  //     lon: 78
-  //   },
-  //   to: { // in indonesia
-  //     lat: 0,
-  //     lon: 100
-  //   }
-  // };
+  });
 
   // create a container node and add ALL OUR meshes
   var root = new THREE.Object3D();
   root.scale.set(2.5, 2.5, 2.5);
   root.add(baseGlobe);
   root.add(baseMap);
-  
-
+  scene.add(root);
 
   function onGlobeClick(event) {
 
@@ -102,6 +86,7 @@ d3.json('data/world.json', function (err, data) {
     // Get new camera position
     var temp = new THREE.Mesh();
     temp.position.copy(convertToXYZ(latlng, 900));
+    console.log(root.position);
     temp.lookAt(root.position);
     temp.rotateY(Math.PI);
 
@@ -153,6 +138,15 @@ d3.json('data/world.json', function (err, data) {
   setEvents(camera, [baseGlobe], 'click');
   setEvents(camera, [baseGlobe], 'mousemove', 10);
 });
+
+var controls = new OrbitControls(camera);
+controls.enablePan = true;
+controls.enableZoom = true;
+controls.enableRotate = true;
+controls.minDistance = 900;
+controls.maxDistance = 1500;
+controls.minPolarAngle = 0;
+controls.maxPolarAngle = Math.PI;
 
 function animate() {
   requestAnimationFrame(animate);

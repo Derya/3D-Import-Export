@@ -77,7 +77,7 @@ function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, callback)
   secondCube.position.x = xF; secondCube.position.y = yF; secondCube.position.z = zF;
 
   if ( typeof callback == 'function'){
-    callback(null, [curveObject,firstCube,secondCube]);
+    callback(null, curveObject);
   }
 }
 
