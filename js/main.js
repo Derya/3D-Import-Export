@@ -6,8 +6,11 @@ import { getTween, memoize } from './utils';
 import topojson from 'topojson';
 import THREE from 'THREE';
 import d3 from 'd3';
+import { distance } from './arc';
 
 var GLOBE_RADIUS = 200;
+
+
 
 d3.json('data/world.json', function (err, data) {
 
@@ -42,14 +45,26 @@ d3.json('data/world.json', function (err, data) {
   baseMap.rotation.y = Math.PI;
 
 
-
-
-
-
   // BEGIN HACKED IN LINE DRAWING TEST
   // some helper function
-  function map( x,  in_min,  in_max,  out_min,  out_max){return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;}
+  // function map( x,  in_min,  in_max,  out_min,  out_max){return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;}
   // test json with 1 point
+
+  // var from;
+  // var to;
+
+  // d3.json('data/latlng.json', function(err, data){
+  // console.log(data.length);
+  // // for(var i =0; i < data.length ; i++){
+  // //   console.log(data[i]);
+
+  // // }
+  //   from = data[2]
+  //   console.log(from);
+  //   to = data[102];
+  //   console.log(to);
+  // });
+
   var dataRecord = {
     from: { // in india
       lat: 19,
@@ -61,66 +76,69 @@ d3.json('data/world.json', function (err, data) {
     }
   };
   ///// calculations for getting FROM point from a latlong into a 3d point on the globe
-  var phiFrom = dataRecord.from.lat * Math.PI / 180;
-  var thetaFrom = (dataRecord.from.lon - 90) * Math.PI / 180;
-  var xF = GLOBE_RADIUS * Math.cos(phiFrom) * Math.sin(thetaFrom);
-  var yF = GLOBE_RADIUS * Math.sin(phiFrom);
-  var zF = GLOBE_RADIUS * Math.cos(phiFrom) * Math.cos(thetaFrom);
-  ///// identical calculates for TO point
-  var phiTo = dataRecord.to.lat * Math.PI / 180;
-  var thetaTo = (dataRecord.to.lon - 90) * Math.PI / 180;
-  var xT = GLOBE_RADIUS * Math.cos(phiTo) * Math.sin(thetaTo);
-  var yT = GLOBE_RADIUS * Math.sin(phiTo);
-  var zT = GLOBE_RADIUS * Math.cos(phiTo) * Math.cos(thetaTo);
-  // save as vectors
-  var vT = new THREE.Vector3(xT, yT, zT);
-  var vF = new THREE.Vector3(xF, yF, zF);
-  // calculate distance
-  var dist = vF.distanceTo(vT);
-  // here we are creating the control points for the first ones.
-  // the 'c' in front stands for control.
-  var cvT = vT.clone();
-  var cvF = vF.clone();
-  // then you get the half point of the vectors points.
-  var xC = ( 0.5 * (vF.x + vT.x) );
-  var yC = ( 0.5 * (vF.y + vT.y) );
-  var zC = ( 0.5 * (vF.z + vT.z) );
-  // then we create a vector for the midpoints.
-  var mid = new THREE.Vector3(xC, yC, zC);
-
-  ////////////////////////// some more curve magic i guess????
-  var smoothDist = map(dist, 0, 10, 0, 15/dist );
-  mid.setLength( GLOBE_RADIUS * smoothDist );
-  cvT.add(mid);
-  cvF.add(mid);
-  cvT.setLength( GLOBE_RADIUS * smoothDist );
-  cvF.setLength( GLOBE_RADIUS * smoothDist );
-  ////////////////////////// end curve magic
-  // create curve object
-  var curve = new THREE.CubicBezierCurve3( vF, cvF, cvT, vT );
- 
-  // create curve geometry
-  var geometry2 = new THREE.Geometry();
-  geometry2.vertices = curve.getPoints( 50 );
-  var material2 = new THREE.LineBasicMaterial( { color : 'green' } );
   
-  // CREATING ACTUAL 3D OBJECT TO RENDER:::
-  var curveObject = new THREE.Line( geometry2, material2 );
-  // added to scene a bit further below 
+  // var phiFrom = dataRecord.from.lat * Math.PI / 180;
+  // var thetaFrom = (dataRecord.from.lon - 90) * Math.PI / 180;
+  // var xF = GLOBE_RADIUS * Math.cos(phiFrom) * Math.sin(thetaFrom);
+  // var yF = GLOBE_RADIUS * Math.sin(phiFrom);
+  // var zF = GLOBE_RADIUS * Math.cos(phiFrom) * Math.cos(thetaFrom);
+  
+  // ///// identical calculates for TO point
+  // var phiTo = dataRecord.to.lat * Math.PI / 180;
+  // var thetaTo = (dataRecord.to.lon - 90) * Math.PI / 180;
+  // var xT = GLOBE_RADIUS * Math.cos(phiTo) * Math.sin(thetaTo);
+  // var yT = GLOBE_RADIUS * Math.sin(phiTo);
+  // var zT = GLOBE_RADIUS * Math.cos(phiTo) * Math.cos(thetaTo);
+  // console.log("register to");
+  // // save as vectors
+  // var vT = new THREE.Vector3(xT, yT, zT);
+  // var vF = new THREE.Vector3(xF, yF, zF);
+  // // calculate distance
+  // var dist = vF.distanceTo(vT);
+  // console.log("register distance");
 
-  // important: we need to save the paths for adding graphics to them::
-  // paths.push(curve);
+  // var dist = distance(dataRecord.from.lat, dataRecord.from.long, dataRecord.to.lat, dataRecord.to.long);
+  // // here we are creating the control points for the first ones.
+  // // the 'c' in front stands for control.
+  // var cvT = vT.clone();
+  // var cvF = vF.clone();
+  // // then you get the half point of the vectors points.
+  // var xC = ( 0.5 * (vF.x + vT.x) );
+  // var yC = ( 0.5 * (vF.y + vT.y) );
+  // var zC = ( 0.5 * (vF.z + vT.z) );
+  // // then we create a vector for the midpoints.
+  // var mid = new THREE.Vector3(xC, yC, zC);
 
-  // make some cubes for testing, also added to scene below
-  var firstCube = new THREE.Mesh(new THREE.CubeGeometry(10,10,10), new THREE.MeshNormalMaterial());
-  firstCube.position.x = xT; firstCube.position.y = yT; firstCube.position.z = zT;
-  var secondCube = new THREE.Mesh(new THREE.CubeGeometry(10,10,10), new THREE.MeshNormalMaterial());
-  secondCube.position.x = xF; secondCube.position.y = yF; secondCube.position.z = zF;
+  // ////////////////////////// some more curve magic i guess????
+  // var smoothDist = map(dist, 0, 10, 0, 15/dist );
+  // mid.setLength( GLOBE_RADIUS * smoothDist );
+  // cvT.add(mid);
+  // cvF.add(mid);
+  // cvT.setLength( GLOBE_RADIUS * smoothDist );
+  // cvF.setLength( GLOBE_RADIUS * smoothDist );
+  // ////////////////////////// end curve magic
+  // // create curve object
+  // var curve = new THREE.CubicBezierCurve3( vF, cvF, cvT, vT );
+ 
+  // // create curve geometry
+  // var geometry2 = new THREE.Geometry();
+  // geometry2.vertices = curve.getPoints( 50 );
+  // var material2 = new THREE.LineBasicMaterial( { color : 'green' } );
+  
+  // // CREATING ACTUAL 3D OBJECT TO RENDER:::
+  // var curveObject = new THREE.Line( geometry2, material2 );
+  // // added to scene a bit further below 
 
-  // END HACKED IN ROUTES TESTING
+  // // important: we need to save the paths for adding graphics to them::
+  // // paths.push(curve);
 
+  // // make some cubes for testing, also added to scene below
+  // var firstCube = new THREE.Mesh(new THREE.CubeGeometry(10,10,10), new THREE.MeshNormalMaterial());
+  // firstCube.position.x = xT; firstCube.position.y = yT; firstCube.position.z = zT;
+  // var secondCube = new THREE.Mesh(new THREE.CubeGeometry(10,10,10), new THREE.MeshNormalMaterial());
+  // secondCube.position.x = xF; secondCube.position.y = yF; secondCube.position.z = zF;
 
-
+  // // END HACKED IN ROUTES TESTING
 
 
   // create a container node and add ALL OUR meshes
@@ -128,9 +146,18 @@ d3.json('data/world.json', function (err, data) {
   root.scale.set(2.5, 2.5, 2.5);
   root.add(baseGlobe);
   root.add(baseMap);
-  root.add(curveObject);
-  root.add(firstCube); root.add(secondCube);
-  scene.add(root);
+  
+  distance(dataRecord.from.lat, dataRecord.from.long, dataRecord.to.lat, dataRecord.to.long, function(err, data){
+    console.log("callback");
+    for(var i=0; i < data.length; i++){
+      root.add(data[i]);
+      
+    }
+    console.log("add all component to root");
+    scene.add(root);
+    // root.add(curveObject);
+    // root.add(firstCube); root.add(secondCube);
+  });
 
   function onGlobeClick(event) {
 
