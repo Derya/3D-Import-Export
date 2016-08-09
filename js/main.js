@@ -9,9 +9,6 @@ import topojson from 'topojson';
 import THREE from 'THREE';
 import d3 from 'd3';
 
-
-function map( x,  in_min,  in_max,  out_min,  out_max){return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;}
-
 function getCurveObject(fLat, fLong, tLat, tLong)
 {
   ////// calculating 3d points for FROM point
@@ -70,6 +67,17 @@ function getCurveObject(fLat, fLong, tLat, tLong)
 }
 
 
+function map( x,  in_min,  in_max,  out_min,  out_max){return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;}
+
+function getCountryByFullName(query, arr) {
+  return arr.find(function(blah) {return blah.id == query});
+}
+function getCountryByShortCode(query, arr) {
+  return arr.find(function(blah) {return blah.shortCode == query});
+}
+function getCountryByLongCode(query, arr) {
+  return arr.find(function(blah) {return blah.longCode == query});
+}
 
 d3.json('data/world.json', function (err, data) {
 
@@ -104,15 +112,15 @@ d3.json('data/world.json', function (err, data) {
   baseMap.rotation.y = Math.PI;
 
   // get array of country objects from world.json
-  var countryArr = (data.objects.countries.geometries);
+  var countryArr = data.objects.countries.geometries;
+
   // create a container node and add all our curves to it
   var curves = new THREE.Object3D();
+  var india = getCountryByFullName("India", countryArr);
 
   countryArr.forEach(function(country){
-    curves.add(getCurveObject(country.lat, country.long, 0, 100));
-
+    curves.add(getCurveObject(country.lat, country.long, india.lat, india.long));
   });
-
 
   // create a container node and add all our meshes
   var root = new THREE.Object3D();
