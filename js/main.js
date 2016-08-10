@@ -142,12 +142,32 @@ d3.json('data/world.json', function (err, data) {
   setEvents(camera, [baseGlobe], 'mousemove', 10);
 });
 
+
+// var imagePrefix = "textures/";
+// var direction = ['front', 'back', 'right', 'left', 'up', 'down'];
+// var imageSuffix = ".png";
+
+var materialArray = [];
+for(var j = 0; j < 6; j++){
+  materialArray.push(new THREE.MeshBasicMaterial({
+    // map: THREE.ImageUtils.loadTexture( imagePrefix + direction[j] + imageSuffix),
+    map: THREE.ImageUtils.loadTexture( "textures/all.gif"),
+    side: THREE.BackSide
+  }));
+}
+
+var skyGeometry = new THREE.CubeGeometry(8000,8000,8000);
+var skyMaterial = new THREE.MeshFaceMaterial(materialArray);
+var skyBox = new THREE.Mesh(skyGeometry, skyMaterial);
+
+scene.add(skyBox);
+
 var controls = new OrbitControls(camera);
 controls.enablePan = true;
 controls.enableZoom = true;
 controls.enableRotate = true;
 controls.minDistance = 900;
-controls.maxDistance = 1500;
+controls.maxDistance = 2000;
 controls.minPolarAngle = 0;
 controls.maxPolarAngle = Math.PI;
 
