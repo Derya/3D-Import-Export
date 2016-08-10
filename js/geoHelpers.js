@@ -68,7 +68,7 @@ var geodecoder = function (features) {
           match = pointInPolygon(country.geometry.coordinates[0], [lng, lat]);
           if (match) {
             return {
-              code: features[i].id + " asdf test",
+              code: features[i].id,
               longCode: features[i].longCode,
               shortCode: features[i].shortCode,
               name: features[i].properties.name
@@ -80,7 +80,7 @@ var geodecoder = function (features) {
             match = pointInPolygon(coords[j][0], [lng, lat]);
             if (match) {
               return {
-                code: features[i].id + " asdf test",
+                code: features[i].id,
                 longCode: features[i].longCode,
                 shortCode: features[i].shortCode,
                 name: features[i].properties.name
