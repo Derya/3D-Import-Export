@@ -9,22 +9,12 @@ import topojson from 'topojson';
 import THREE from 'THREE';
 import * as orbitControls from 'OrbitControls';
 import d3 from 'd3';
-import { arcpath } from './arc';
+import { getData, drawData } from './getData';
 
 // The OrbitControls node module uses module.export instead of ES6 module syntax
 console.log(orbitControls);
 
 const OrbitControls = orbitControls.default(THREE);
-
-function getCountryByFullName(query, arr) {
-  return arr.find(function(blah) {return blah.id == query});
-}
-function getCountryByShortCode(query, arr) {
-  return arr.find(function(blah) {return blah.shortCode == query});
-}
-function getCountryByLongCode(query, arr) {
-  return arr.find(function(blah) {return blah.longCode == query});
-}
 
 d3.json('data/world.json', function (err, data) {
 
@@ -63,15 +53,7 @@ d3.json('data/world.json', function (err, data) {
   // create a container node and add all our curves to it
   var curves = new THREE.Object3D();
 
-  // its india!
-  var india = getCountryByFullName("India", countryArr);
-
-  // we're going to draw a line from india to every other place for testing
-  countryArr.forEach(function(country){
-    arcpath(country.lat, country.long, india.lat, india.long, function(err, data) {
-      curves.add(data);
-    });
-  });
+  drawData('nausa', 'import', countryArr, curves);
 
   // create a container node and add all our meshes
   var root = new THREE.Object3D();
