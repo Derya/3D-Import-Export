@@ -48,7 +48,8 @@ d3.json('data/world.json', function (err, data) {
   let sphere = new THREE.SphereGeometry(GLOBE_RADIUS, segments, segments);
   let baseGlobe = new THREE.Mesh(sphere, blueMaterial);
   baseGlobe.rotation.y = Math.PI;
-  baseGlobe.addEventListener('click', onGlobeClick);
+  // todo: implement this!
+  baseGlobe.addEventListener('ondblclick', onGlobeClick);
   baseGlobe.addEventListener('mousemove', onGlobeMousemove);
 
   // add base map layer with all countries
@@ -81,8 +82,8 @@ d3.json('data/world.json', function (err, data) {
   root.add(curves);
   scene.add(root);
 
-  function onGlobeClick(event) {
-
+  function onGlobeClick(event) { 
+    console.log("globe double click!");
     // Get pointc, convert to latitude/longitude
     var latlng = getEventCenter.call(this, event);
     console.log("latitude: " + latlng[0] + " longitude: " + latlng[1]);
@@ -118,7 +119,7 @@ d3.json('data/world.json', function (err, data) {
     var country = geo.search(latlng[0], latlng[1]);
 
     if (country !== null && country.code !== currentCountry) {
-
+      
       // Track the current country displayed
       currentCountry = country.code;
 
