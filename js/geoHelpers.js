@@ -61,7 +61,6 @@ var geodecoder = function (features) {
       let match = false;
 
       let country, coords;
-
       for (let i = 0; i < features.length; i++) {
         country = features[i];
         if(country.geometry.type === 'Polygon') {

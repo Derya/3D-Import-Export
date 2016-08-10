@@ -1,7 +1,5 @@
 import THREE from 'THREE';
 
-console.log("asdf: " + window.GLOBE_RADIUS);
-
 function map( x,  in_min,  in_max,  out_min,  out_max){return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;}
 
 function findVector(latitude, longitude){
@@ -18,7 +16,7 @@ function findVector(latitude, longitude){
 }
 
 // cool callback
-function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, callback)
+function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, colorToDraw, callback)
 {
   var vF = findVector(fromLatitude, fromLongitude);
   var vT = findVector(toLatitude, toLongitude); 
@@ -49,7 +47,7 @@ function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, callback)
   // create curve geometry
   var geometry2 = new THREE.Geometry();
   geometry2.vertices = curve.getPoints( 50 );
-  var material2 = new THREE.LineBasicMaterial( { color : 'orange' , linewidth: 3, fog: true } );
+  var material2 = new THREE.LineBasicMaterial( { color : "#" + colorToDraw , linewidth: 3, fog: true } );
   
   // CREATING ACTUAL 3D OBJECT TO RENDER:::
   var curveObject = new THREE.Line( geometry2, material2 );

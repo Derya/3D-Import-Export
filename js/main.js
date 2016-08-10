@@ -11,9 +11,6 @@ import * as orbitControls from 'OrbitControls';
 import d3 from 'd3';
 import { getData, drawData } from './getData';
 
-// The OrbitControls node module uses module.export instead of ES6 module syntax
-console.log(orbitControls);
-
 const OrbitControls = orbitControls.default(THREE);
 
 d3.json('data/world.json', function (err, data) {
@@ -104,6 +101,7 @@ d3.json('data/world.json', function (err, data) {
       
       // Track the current country displayed
       currentCountry = country.code;
+
 
       // Update the html
       d3.select("#msg").html(country.code);
