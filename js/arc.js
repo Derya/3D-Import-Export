@@ -1,5 +1,6 @@
 import THREE from 'THREE';
-var GLOBE_RADIUS = 200;
+
+console.log("asdf: " + window.GLOBE_RADIUS);
 
 function map( x,  in_min,  in_max,  out_min,  out_max){return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;}
 
@@ -8,9 +9,9 @@ function findVector(latitude, longitude){
   var phi = latitude * Math.PI / 180;
   var theta = (longitude - 90) * Math.PI / 180;
   // 3 point Cartesian
-  var x = GLOBE_RADIUS * Math.cos(phi) * Math.sin(theta);
-  var y = GLOBE_RADIUS * Math.sin(phi);
-  var z = GLOBE_RADIUS * Math.cos(phi) * Math.cos(theta);
+  var x = window.GLOBE_RADIUS * Math.cos(phi) * Math.sin(theta);
+  var y = window.GLOBE_RADIUS * Math.sin(phi);
+  var z = window.GLOBE_RADIUS * Math.cos(phi) * Math.cos(theta);
   // vector
   var v = new THREE.Vector3(x, y, z);
   return v;
@@ -19,19 +20,6 @@ function findVector(latitude, longitude){
 // cool callback
 function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, callback)
 {
-  var phiFrom = fromLatitude * Math.PI / 180;
-  var thetaFrom = (fromLongitude - 90) * Math.PI / 180;
-  var xF = GLOBE_RADIUS * Math.cos(phiFrom) * Math.sin(thetaFrom);
-  var yF = GLOBE_RADIUS * Math.sin(phiFrom);
-  var zF = GLOBE_RADIUS * Math.cos(phiFrom) * Math.cos(thetaFrom);
-  
-  ///// identical calculates for TO point
-  var phiTo = toLatitude * Math.PI / 180;
-  var thetaTo = (toLongitude - 90) * Math.PI / 180;
-  var xT = GLOBE_RADIUS * Math.cos(phiTo) * Math.sin(thetaTo);
-  var yT = GLOBE_RADIUS * Math.sin(phiTo);
-  var zT = GLOBE_RADIUS * Math.cos(phiTo) * Math.cos(thetaTo);
-
   var vF = findVector(fromLatitude, fromLongitude);
   var vT = findVector(toLatitude, toLongitude); 
   var dist = vF.distanceTo(vT);
@@ -49,11 +37,11 @@ function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, callback)
 
   ////////////////////////// some more curve magic i guess????
   var smoothDist = map(dist, 0, 10, 0, 15/dist );
-  mid.setLength( GLOBE_RADIUS * smoothDist );
+  mid.setLength( window.GLOBE_RADIUS * smoothDist );
   cvT.add(mid);
   cvF.add(mid);
-  cvT.setLength( GLOBE_RADIUS * smoothDist );
-  cvF.setLength( GLOBE_RADIUS * smoothDist );
+  cvT.setLength( window.GLOBE_RADIUS * smoothDist );
+  cvF.setLength( window.GLOBE_RADIUS * smoothDist );
   ////////////////////////// end curve magic
 
    // create curve object
@@ -61,10 +49,10 @@ function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, callback)
   // create curve geometry
   var geometry2 = new THREE.Geometry();
   geometry2.vertices = curve.getPoints( 50 );
-  var material2 = new THREE.LineBasicMaterial( { color : 'green' } );
+  var material2 = new THREE.LineBasicMaterial( { color : 'orange' , linewidth: 3, fog: true } );
   
-    // CREATING ACTUAL 3D OBJECT TO RENDER:::
-    var curveObject = new THREE.Line( geometry2, material2 );
+  // CREATING ACTUAL 3D OBJECT TO RENDER:::
+  var curveObject = new THREE.Line( geometry2, material2 );
   // added to scene a bit further below 
 
   // important: we need to save the paths for adding graphics to them::

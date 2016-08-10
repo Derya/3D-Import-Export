@@ -1,4 +1,4 @@
-const GLOBE_RADIUS = 200;
+window.GLOBE_RADIUS = 200;
 
 import { scene, camera, renderer } from './scene';
 import { setEvents } from './setEvents';
@@ -54,7 +54,7 @@ d3.json('data/world.json', function (err, data) {
   // create a container node and add all our curves to it
   var curves = new THREE.Object3D();
 
-  drawData('nausa', 'import', countryArr, curves);
+  drawData('asind', 'import', countryArr, curves);
 
   // create a container node and add all our meshes
   var root = new THREE.Object3D();

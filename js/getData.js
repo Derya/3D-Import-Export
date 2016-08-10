@@ -12,8 +12,11 @@ function getCountryByLongCode(query, arr) {
   return arr.find(function(q) {return q.longCode == query});
 }
 
+
+
 function getData(country, format, fn){
     var url = `http://josh-han.com:10002/${format}/${country}`;
+    console.log(url);
     d3.json(url, function (err, data) {
         fn(data);
     });
