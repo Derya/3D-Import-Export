@@ -34,7 +34,7 @@ d3.json('data/world.json', function (err, data) {
   });
 
   // Base globe with blue "water"
-  let blueMaterial = new THREE.MeshPhongMaterial({color: '#003380', transparent: true});
+  let blueMaterial = new THREE.MeshPhongMaterial({color: '#091F36', transparent: true});
   let sphere = new THREE.SphereGeometry(GLOBE_RADIUS, segments, segments);
   let baseGlobe = new THREE.Mesh(sphere, blueMaterial);
   baseGlobe.rotation.y = Math.PI;
@@ -43,7 +43,7 @@ d3.json('data/world.json', function (err, data) {
   baseGlobe.addEventListener('mousemove', onGlobeMousemove);
 
   // add base map layer with all countries
-  let worldTexture = mapTexture(countries, '#b8b894');
+  let worldTexture = mapTexture(countries, '#112D43');
   let mapMaterial  = new THREE.MeshPhongMaterial({map: worldTexture, transparent: true});
   var baseMap = new THREE.Mesh(new THREE.SphereGeometry(200, segments, segments), mapMaterial);
   baseMap.rotation.y = Math.PI;
@@ -54,6 +54,7 @@ d3.json('data/world.json', function (err, data) {
   // create a container node and add all our curves to it
   var curves = new THREE.Object3D();
 
+  //example of drawing
   drawData('asind', 'import', countryArr, curves);
 
   // create a container node and add all our meshes
@@ -109,7 +110,7 @@ d3.json('data/world.json', function (err, data) {
       d3.select("#msg").html(country.code);
 
        // Overlay the selected country
-       map = textureCache(country.code, 'red');
+       map = textureCache(country.code, '#13355F');
        material = new THREE.MeshPhongMaterial({map: map, transparent: true});
        if (!overlay) {
         overlay = new THREE.Mesh(new THREE.SphereGeometry(201, 40, 40), material);
@@ -125,12 +126,32 @@ d3.json('data/world.json', function (err, data) {
   setEvents(camera, [baseGlobe], 'mousemove', 10);
 });
 
+
+// var imagePrefix = "textures/";
+// var direction = ['front', 'back', 'right', 'left', 'up', 'down'];
+// var imageSuffix = ".png";
+
+var materialArray = [];
+for(var j = 0; j < 6; j++){
+  materialArray.push(new THREE.MeshBasicMaterial({
+    // map: THREE.ImageUtils.loadTexture( imagePrefix + direction[j] + imageSuffix),
+    map: THREE.ImageUtils.loadTexture( "textures/all.gif"),
+    side: THREE.BackSide
+  }));
+}
+
+var skyGeometry = new THREE.CubeGeometry(8000,8000,8000);
+var skyMaterial = new THREE.MeshFaceMaterial(materialArray);
+var skyBox = new THREE.Mesh(skyGeometry, skyMaterial);
+
+scene.add(skyBox);
+
 var controls = new OrbitControls(camera);
-controls.enablePan = true;
+controls.enablePan = false;
 controls.enableZoom = true;
 controls.enableRotate = true;
 controls.minDistance = 900;
-controls.maxDistance = 1500;
+controls.maxDistance = 2000;
 controls.minPolarAngle = 0;
 controls.maxPolarAngle = Math.PI;
 

@@ -29,7 +29,12 @@ function drawData(country, format, countryArr, curves){
       console.log(country);
       var destCountry = getCountryByLongCode(trade.dest_id, countryArr);
       try {
-        arcpath(originCountry.lat, originCountry.long, destCountry.lat, destCountry.long, function(err, arc) {
+        //either import or export
+        arcpath(originCountry.lat, originCountry.long, destCountry.lat, destCountry.long - 0.5, "green", function(err, arc) {
+          curves.add(arc);
+        });
+        //either import or export
+        arcpath(originCountry.lat, originCountry.long, destCountry.lat, destCountry.long + 0.5, "red", function(err, arc) {
           curves.add(arc);
         });
       }

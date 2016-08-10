@@ -18,7 +18,7 @@ function findVector(latitude, longitude){
 }
 
 // cool callback
-function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, callback)
+function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, colory, callback)
 {
   var vF = findVector(fromLatitude, fromLongitude);
   var vT = findVector(toLatitude, toLongitude); 
@@ -49,7 +49,9 @@ function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, callback)
   // create curve geometry
   var geometry2 = new THREE.Geometry();
   geometry2.vertices = curve.getPoints( 50 );
-  var material2 = new THREE.LineBasicMaterial( { color : 'orange' , linewidth: 3, fog: true } );
+
+  var material2 = new THREE.LineBasicMaterial( { color : colory, linewidth: 5 , lineopacity: 0.8} );
+
   
   // CREATING ACTUAL 3D OBJECT TO RENDER:::
   var curveObject = new THREE.Line( geometry2, material2 );

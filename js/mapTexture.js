@@ -19,7 +19,7 @@ export function mapTexture(geojson, color) {
     .projection(projection)
     .context(context);
 
-  context.strokeStyle = "#333";
+  context.strokeStyle = "#44CF78";
   context.lineWidth = 1;
   context.fillStyle = color || "#CDB380";
 
