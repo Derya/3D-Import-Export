@@ -44,7 +44,7 @@ d3.json('data/world.json', function (err, data) {
   });
 
   // Base globe with blue "water"
-  let blueMaterial = new THREE.MeshPhongMaterial({color: '#003380', transparent: true});
+  let blueMaterial = new THREE.MeshPhongMaterial({color: '#091F36', transparent: true});
   let sphere = new THREE.SphereGeometry(GLOBE_RADIUS, segments, segments);
   let baseGlobe = new THREE.Mesh(sphere, blueMaterial);
   baseGlobe.rotation.y = Math.PI;
@@ -52,7 +52,7 @@ d3.json('data/world.json', function (err, data) {
   baseGlobe.addEventListener('mousemove', onGlobeMousemove);
 
   // add base map layer with all countries
-  let worldTexture = mapTexture(countries, '#b8b894');
+  let worldTexture = mapTexture(countries, '#112D43');
   let mapMaterial  = new THREE.MeshPhongMaterial({map: worldTexture, transparent: true});
   var baseMap = new THREE.Mesh(new THREE.SphereGeometry(200, segments, segments), mapMaterial);
   baseMap.rotation.y = Math.PI;
@@ -126,7 +126,7 @@ d3.json('data/world.json', function (err, data) {
       d3.select("#msg").html(country.code);
 
        // Overlay the selected country
-       map = textureCache(country.code, 'red');
+       map = textureCache(country.code, 'gray');
        material = new THREE.MeshPhongMaterial({map: map, transparent: true});
        if (!overlay) {
         overlay = new THREE.Mesh(new THREE.SphereGeometry(201, 40, 40), material);
