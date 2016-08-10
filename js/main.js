@@ -17,13 +17,13 @@ console.log(orbitControls);
 const OrbitControls = orbitControls.default(THREE);
 
 function getCountryByFullName(query, arr) {
-  return arr.find(function(blah) {return blah.id == query});
+  return arr.find(function(q) {return q.id == query});
 }
 function getCountryByShortCode(query, arr) {
-  return arr.find(function(blah) {return blah.shortCode == query});
+  return arr.find(function(q) {return q.shortCode == query});
 }
 function getCountryByLongCode(query, arr) {
-  return arr.find(function(blah) {return blah.longCode == query});
+  return arr.find(function(q) {return q.longCode == query});
 }
 
 d3.json('data/world.json', function (err, data) {
