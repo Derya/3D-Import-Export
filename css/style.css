@@ -1,6 +1,6 @@
 body, html {
   background-color: black;
-  overflow: hidden;
+  /*overflow: hidden;*/
   margin: 0px;
   font-family: helvetica, arial;
   color: #333;

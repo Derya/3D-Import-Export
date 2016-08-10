@@ -17,13 +17,12 @@ camera.position.z = 1000;
 
 export var scene = new THREE.Scene();
 
-export var light = new THREE.AmbientLight('#ffffff', '#666666', 2);
+export var light = new THREE.AmbientLight('#ffffff', '#666666', 5);
 scene.add(light);
-export var light2 = new THREE.PointLight('#ffffff');
-light2.position.set(0,0,10000);
-light2.castShadow = true;
-
-scene.add(light2);
+// export var light2 = new THREE.PointLight('#ffffff');
+// light2.position.set(0,0,10000);
+// light2.castShadow = true;
+// scene.add(light2);
 
 
 window.addEventListener('resize', onWindowResize, false);

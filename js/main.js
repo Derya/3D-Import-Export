@@ -53,7 +53,8 @@ d3.json('data/world.json', function (err, data) {
   // create a container node and add all our curves to it
   var curves = new THREE.Object3D();
 
-  drawData('nausa', 'import', countryArr, curves);
+  //example of drawing
+  drawData('nausa', 'export', countryArr, curves);
 
   // create a container node and add all our meshes
   var root = new THREE.Object3D();
@@ -108,7 +109,7 @@ d3.json('data/world.json', function (err, data) {
       d3.select("#msg").html(country.code);
 
        // Overlay the selected country
-       map = textureCache(country.code, 'gray');
+       map = textureCache(country.code, '#13355F');
        material = new THREE.MeshPhongMaterial({map: map, transparent: true});
        if (!overlay) {
         overlay = new THREE.Mesh(new THREE.SphereGeometry(201, 40, 40), material);
@@ -145,7 +146,7 @@ var skyBox = new THREE.Mesh(skyGeometry, skyMaterial);
 scene.add(skyBox);
 
 var controls = new OrbitControls(camera);
-controls.enablePan = true;
+controls.enablePan = false;
 controls.enableZoom = true;
 controls.enableRotate = true;
 controls.minDistance = 900;
