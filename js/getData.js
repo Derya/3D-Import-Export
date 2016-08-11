@@ -2,8 +2,8 @@
 import d3 from 'd3';
 import { arcpath } from './arc';
 
-window.displayThreshold = 100000;
-window.displayMax = 10000000000;
+window.displayThreshold = Math.pow(10, 5); //100000;
+window.displayMax = Math.pow(10, 10); //10000000000;
 
 function getCountryByFullName(query, arr) {
   return arr.find(function(q) {return q.id == query});
