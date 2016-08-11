@@ -26,28 +26,62 @@ function getData(country, format, fn){
   });
 }
 
+// import is boolean, true for import false for export
+function getHexCode(tradeVal, importQuestionMark)
+{
+  if (importQuestionMark)
+  {
+    var tradePercent = 100 * (tradeVal - window.displayThreshold) / (window.displayMax - window.displayThreshold);
+    if (tradePercent > 100) tradePercent = 100; else if (tradePercent < 0) tradePercent = 0;
+
+    var hue = 360 - Math.floor(tradePercent * 180 / 100);  // go from cyan to red
+    var saturation = 50;   // var saturation = Math.abs(tradePercent - 50)/50; // fade to white as it approaches 50
+    return "#" + tinycolor({ h: hue, s: saturation, v: 50 }).toHex();
+  }
+  return "#ffffff";
+}
+
+// draw either import or export data or both evidently, depending on input data
 function drawData(country, format, countryArr, curves){
   getData(country, format, function(data){
     data.forEach(function(trade){
-      var tradeVal;
-      if (trade.import_val) tradeVal = trade.import_val; else tradeVal = trade.export_val;
-      var tradePercent =  100 * (tradeVal - window.displayThreshold) / (window.displayMax - window.displayThreshold);
-      if (tradePercent > 100) tradePercent = 100; else if (tradePercent < 0) tradePercent = 0;
+      var importVal, exportVal, colorDraw, originCountry, destCountry;
 
-      var hue = 360 - Math.floor(tradePercent * 180 / 100);  // go from cyan to red
-      var saturation = 50;   // var saturation = Math.abs(tradePercent - 50)/50; // fade to white as it approaches 50
-      var colorDraw = tinycolor({ h: hue, s: saturation, v: 50 }).toHex();
-
-      // console.log("tradeVal = " + tradeVal + " % = " + tradePercent);
-      var originCountry = getCountryByLongCode(country, countryArr);
-      var destCountry = getCountryByLongCode(trade.dest_id, countryArr);
-      try {
-        arcpath(originCountry.lat, originCountry.long, destCountry.lat, destCountry.long, colorDraw, function(err, arc) {
-          curves.add(arc);
-        });
+      // draw import if it exists
+      if (trade.import_val)
+      {
+        importVal = trade.import_val;
+        colorDraw = getHexCode(importVal, true);
+        // console.log("tradeVal = " + tradeVal + " % = " + tradePercent);
+        originCountry = getCountryByLongCode(country, countryArr);
+        destCountry = getCountryByLongCode(trade.dest_id, countryArr);
+        try {
+          // definetely import
+          arcpath(originCountry.lat, originCountry.long, destCountry.lat, destCountry.long - 0.5, colorDraw, function(err, arc) {
+            curves.add(arc);
+          });
+        }
+        catch(err) {
+          // console.log(err);
+        }
       }
-      catch(err) {
-        // console.log(err);
+      // draw export if it exists
+      if (trade.export_val)
+      {
+        exportVal = trade.export_val;
+        colorDraw = getHexCode(exportVal, false);
+        // console.log("tradeVal = " + tradeVal + " % = " + tradePercent);
+        originCountry = getCountryByLongCode(country, countryArr);
+        destCountry = getCountryByLongCode(trade.dest_id, countryArr);
+        try {
+          // definetely export
+          arcpath(originCountry.lat, originCountry.long, destCountry.lat, destCountry.long + 0.5, colorDraw, function(err, arc) {
+            curves.add(arc);
+          });
+        }
+        catch(err) {
+          // console.log(err);
+        }
       }
     });
   })
