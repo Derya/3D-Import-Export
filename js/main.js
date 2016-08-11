@@ -35,8 +35,10 @@ d3.json('data/world.json', function (err, data) {
   let sphere = new THREE.SphereGeometry(GLOBE_RADIUS, segments, segments);
   let baseGlobe = new THREE.Mesh(sphere, blueMaterial);
   baseGlobe.rotation.y = Math.PI;
-  // todo: implement this!
+
+  // TODO: implement this!
   baseGlobe.addEventListener('ondblclick', onGlobeClick);
+  baseGlobe.addEventListener('click', clickToRedraw);
   baseGlobe.addEventListener('mousemove', onGlobeMousemove);
 
   // add base map layer with all countries
@@ -139,8 +141,9 @@ d3.json('data/world.json', function (err, data) {
     if (countryLongCode) {
       root.remove(curves);
       curves = new THREE.Object3D();
-      // 
+
       drawData(countryLongCode, 'both', countryArr, curves);
+      
       console.log(countryLongCode);
       root.add(curves);
     }
