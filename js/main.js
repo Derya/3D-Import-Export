@@ -1,4 +1,5 @@
 window.GLOBE_RADIUS = 200;
+window.GLOBE_HALF_CIRCUMF = Math.PI * window.GLOBE_RADIUS;
 
 import { scene, camera, renderer } from './scene';
 import { setEvents } from './setEvents';
@@ -134,7 +135,6 @@ d3.json('data/world.json', function (err, data) {
     if (!country) return;
     if (selectedCountry && (country.code === selectedCountry.code)) return;
 
-    window.movingGuys = [];
     window.pathHashes = [];
 
     if (country) {
@@ -191,16 +191,16 @@ var pt; var pathHash;
 function animate() {
   requestAnimationFrame(animate);
 
-  if (window.movingGuys && window.movingGuys.length > 0)
+  if (window.pathHashes && window.pathHashes.length > 0)
   {
-    for(var i = 0; i < window.movingGuys.length; i++) {
+    for(var i = 0; i < window.pathHashes.length; i++) {
       pathHash = window.pathHashes[i];
-      pt = pathHash.curve.getPoint(pathHash.time);
-      window.movingGuys[i].position.set(pt.x, pt.y, pt.z);
+      pt = pathHash.curve.getPoint(pathHash.position);
+      pathHash.movingGuy.position.set(pt.x, pt.y, pt.z);
       if (pathHash.importQuestionMark) {
-        pathHash.time = (pathHash.time <= 0) ? 1 : pathHash.time -= pathHash.speed;
+        pathHash.position = (pathHash.position <= 0) ? 1 : pathHash.position -= pathHash.speed;
       } else {
-        pathHash.time = (pathHash.time >= 1) ? 0 : pathHash.time += pathHash.speed;
+        pathHash.position = (pathHash.position >= 1) ? 0 : pathHash.position += pathHash.speed;
       }
     }
   }

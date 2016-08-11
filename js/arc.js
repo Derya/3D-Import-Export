@@ -54,16 +54,22 @@ function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, colorToDr
   var curveObject = new THREE.Line( geometry2, material2 );
   // added to scene a bit further below 
 
-  // important: we need to save the paths for adding graphics to them::
+  // this is the threeJS object that is moving on this path
   var newMovingGuy = new THREE.Mesh(new THREE.BoxGeometry(10,10,10), new THREE.MeshNormalMaterial());
-  window.movingGuys.push(newMovingGuy);
-  var pathHash = {
+
+  // this is the hash of info for this particular path to be stored in the global pathHash array
+  window.pathHashes.push({
+    // threeJS 3D object
+    movingGuy: newMovingGuy,
+    // threeJS curve object
     curve: curve,
-    time: Math.random(),
+    // current position on the arc (initialized to random point)
+    position: Math.random(),
+    // speed
     speed: 0.002,
+    // whether it is an import or an export
     importQuestionMark: importQuestionMark
-  };
-  window.pathHashes.push(pathHash);
+  });
 
   if ( typeof callback == 'function'){
     callback(null, [curveObject,newMovingGuy]);
