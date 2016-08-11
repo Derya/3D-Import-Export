@@ -17,7 +17,7 @@ d3.json('data/world.json', function (err, data) {
 
   d3.select("#loading").transition().duration(500).style("opacity", 0).remove();
 
-  var currentCountry, overlay;
+  var currentCountry, selectedCountry, overlay;
 
   var segments = 155; // number of vertices. Higher = better mouse accuracy
 
@@ -52,9 +52,6 @@ d3.json('data/world.json', function (err, data) {
 
   // create a container node and add all our curves to it
   var curves = new THREE.Object3D();
-
-  //example of drawing
-  drawData('asind', 'both', countryArr, curves);
 
   // create a container node and add all our meshes
   var root = new THREE.Object3D();
@@ -134,8 +131,15 @@ d3.json('data/world.json', function (err, data) {
     var country = geo.search(latlng[0], latlng[1]);
     var countryLongCode;
 
+    if (!country) return;
+    if (selectedCountry && (country.code === selectedCountry.code)) return;
+
+    window.movingGuys = [];
+    window.pathHashes = [];
+
     if (country) {
       countryLongCode = getCountryByFullName(country.code, countryArr).longCode;
+      selectedCountry = country;
     }
 
     if (countryLongCode) {
@@ -177,13 +181,30 @@ var controls = new OrbitControls(camera);
 controls.enablePan = false;
 controls.enableZoom = true;
 controls.enableRotate = true;
-controls.minDistance = 900;
+// controls.minDistance = 900;
 controls.maxDistance = 2000;
 controls.minPolarAngle = 0;
 controls.maxPolarAngle = Math.PI;
 
+var pt; var pathHash;
+
 function animate() {
   requestAnimationFrame(animate);
+
+  if (window.movingGuys && window.movingGuys.length > 0)
+  {
+    for(var i = 0; i < window.movingGuys.length; i++) {
+      pathHash = window.pathHashes[i];
+      pt = pathHash.curve.getPoint(pathHash.time);
+      window.movingGuys[i].position.set(pt.x, pt.y, pt.z);
+      if (pathHash.importQuestionMark) {
+        pathHash.time = (pathHash.time <= 0) ? 1 : pathHash.time -= pathHash.speed;
+      } else {
+        pathHash.time = (pathHash.time >= 1) ? 0 : pathHash.time += pathHash.speed;
+      }
+    }
+  }
+
   renderer.render(scene, camera);
 }
 

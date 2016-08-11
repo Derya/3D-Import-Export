@@ -16,7 +16,7 @@ function findVector(latitude, longitude){
 }
 
 // cool callback
-function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, colorToDraw, callback)
+function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, colorToDraw, importQuestionMark, callback)
 {
   var vF = findVector(fromLatitude, fromLongitude);
   var vT = findVector(toLatitude, toLongitude); 
@@ -55,16 +55,18 @@ function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, colorToDr
   // added to scene a bit further below 
 
   // important: we need to save the paths for adding graphics to them::
-  // paths.push(curve);
-
-  // make some cubes for testing, also added to scene below
-  // var firstCube = new THREE.Mesh(new THREE.CubeGeometry(10,10,10), new THREE.MeshNormalMaterial());
-  // firstCube.position.x = xT; firstCube.position.y = yT; firstCube.position.z = zT;
-  // var secondCube = new THREE.Mesh(new THREE.CubeGeometry(10,10,10), new THREE.MeshNormalMaterial());
-  // secondCube.position.x = xF; secondCube.position.y = yF; secondCube.position.z = zF;
+  var newMovingGuy = new THREE.Mesh(new THREE.BoxGeometry(10,10,10), new THREE.MeshNormalMaterial());
+  window.movingGuys.push(newMovingGuy);
+  var pathHash = {
+    curve: curve,
+    time: Math.random(),
+    speed: 0.002,
+    importQuestionMark: importQuestionMark
+  };
+  window.pathHashes.push(pathHash);
 
   if ( typeof callback == 'function'){
-    callback(null, curveObject);
+    callback(null, [curveObject,newMovingGuy]);
   }
 }
 

@@ -60,7 +60,7 @@ function drawData(country, format, countryArr, curves){
       }
     }
     window.displayMax = maxVal;
-      
+
     data.forEach(function(trade){
       var importVal, exportVal, colorDraw, originCountry, destCountry, tradePercent;
 
@@ -80,8 +80,8 @@ function drawData(country, format, countryArr, curves){
           destCountry = getCountryByLongCode(trade.dest_id, countryArr);
           try {
             // definetely import
-            arcpath(originCountry.lat, originCountry.long, destCountry.lat, destCountry.long - 0.5, colorDraw, function(err, arc) {
-              curves.add(arc);
+            arcpath(originCountry.lat, originCountry.long, destCountry.lat, destCountry.long - 0.5, colorDraw, true, function(err, objects) {
+              for (var i = 0; i < objects.length; i++) curves.add(objects[i]);
             });
           }
           catch(err) {
@@ -105,8 +105,8 @@ function drawData(country, format, countryArr, curves){
           destCountry = getCountryByLongCode(trade.dest_id, countryArr);
           try {
             // definetely export
-            arcpath(originCountry.lat, originCountry.long, destCountry.lat, destCountry.long - 0.5, colorDraw, function(err, arc) {
-              curves.add(arc);
+            arcpath(originCountry.lat, originCountry.long, destCountry.lat, destCountry.long + 0.5, colorDraw, false, function(err, objects) {
+              for (var i = 0; i < objects.length; i++) curves.add(objects[i]);
             });
           }
           catch(err) {
