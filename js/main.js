@@ -120,6 +120,32 @@ d3.json('data/world.json', function (err, data) {
     }
   }
 
+
+  function clickToRedraw(event){
+
+    function getCountryByFullName(query, arr) {
+      return arr.find(function(q) {return q.id == query});
+    }
+    // Get pointc, convert to latitude/longitude
+    var latlng = getEventCenter.call(this, event);
+    // Look for country at that latitude/longitude
+    var country = geo.search(latlng[0], latlng[1]);
+    var countryLongCode;
+
+    if (country) {
+      countryLongCode = getCountryByFullName(country.code, countryArr).longCode;
+    }
+
+    if (countryLongCode) {
+      root.remove(curves);
+      curves = new THREE.Object3D();
+      // 
+      drawData(countryLongCode, 'both', countryArr, curves);
+      console.log(countryLongCode);
+      root.add(curves);
+    }
+  }
+
   setEvents(camera, [baseGlobe], 'click');
   setEvents(camera, [baseGlobe], 'mousemove', 10);
 });

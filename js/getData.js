@@ -3,7 +3,9 @@ import d3 from 'd3';
 import { arcpath } from './arc';
 
 window.displayThreshold = 100000;
-window.displayMax = 10000000000;
+window.percentThreshold = 3;
+window.displayMaxImp = 10000000000;
+window.displayMaxExp = 10000000000;
 
 function getCountryByFullName(query, arr) {
   return arr.find(function(q) {return q.id == query});
@@ -27,15 +29,15 @@ function getData(country, format, fn){
 }
 
 // import is boolean, true for import false for export
-function getHexCode(tradeVal, importQuestionMark)
+function getHexCode(tradePercent, importQuestionMark)
 {
   if (importQuestionMark)
   {
-    var tradePercent = 100 * (tradeVal - window.displayThreshold) / (window.displayMax - window.displayThreshold);
-    if (tradePercent > 100) tradePercent = 100; else if (tradePercent < 0) tradePercent = 0;
-
-    var hue = 360 - Math.floor(tradePercent * 180 / 100);  // go from cyan to red
+    // get a hue from cyan to red with cyan at 1 and red at 100
+    var hue = 360 - Math.floor(tradePercent * 180 / 100);
+    // set saturation
     var saturation = 50;   // var saturation = Math.abs(tradePercent - 50)/50; // fade to white as it approaches 50
+    // convert from hsv to hex code
     return "#" + tinycolor({ h: hue, s: saturation, v: 50 }).toHex();
   }
   return "#ffffff";
@@ -44,43 +46,72 @@ function getHexCode(tradeVal, importQuestionMark)
 // draw either import or export data or both evidently, depending on input data
 function drawData(country, format, countryArr, curves){
   getData(country, format, function(data){
+    var maxVal = -1;
+
+    for (var i = 0; i < data.length; i++)
+    {
+      if (data[i].import_val && data[i].import_val > maxVal)
+      {
+        maxVal = data[i].import_val;
+      }
+      if (data[i].export_val && data[i].export_val > maxVal)
+      {
+        maxVal = data[i].export_val;
+      }
+    }
+    window.displayMax = maxVal;
+      
     data.forEach(function(trade){
-      var importVal, exportVal, colorDraw, originCountry, destCountry;
+      var importVal, exportVal, colorDraw, originCountry, destCountry, tradePercent;
 
       // draw import if it exists
       if (trade.import_val)
       {
         importVal = trade.import_val;
-        colorDraw = getHexCode(importVal, true);
-        // console.log("tradeVal = " + tradeVal + " % = " + tradePercent);
-        originCountry = getCountryByLongCode(country, countryArr);
-        destCountry = getCountryByLongCode(trade.dest_id, countryArr);
-        try {
-          // definetely import
-          arcpath(originCountry.lat, originCountry.long, destCountry.lat, destCountry.long - 0.5, colorDraw, function(err, arc) {
-            curves.add(arc);
-          });
-        }
-        catch(err) {
-          // console.log(err);
+
+        tradePercent = 100 * (importVal - window.displayThreshold) / (window.displayMax - window.displayThreshold);
+        if (tradePercent > 100) tradePercent = 100;
+
+        if (tradePercent > window.percentThreshold)
+        {
+          colorDraw = getHexCode(tradePercent, true);
+          // console.log("tradeVal = " + tradeVal + " % = " + tradePercent);
+          originCountry = getCountryByLongCode(country, countryArr);
+          destCountry = getCountryByLongCode(trade.dest_id, countryArr);
+          try {
+            // definetely import
+            arcpath(originCountry.lat, originCountry.long, destCountry.lat, destCountry.long - 0.5, colorDraw, function(err, arc) {
+              curves.add(arc);
+            });
+          }
+          catch(err) {
+            // console.log(err);
+          }
         }
       }
       // draw export if it exists
       if (trade.export_val)
       {
         exportVal = trade.export_val;
-        colorDraw = getHexCode(exportVal, false);
-        // console.log("tradeVal = " + tradeVal + " % = " + tradePercent);
-        originCountry = getCountryByLongCode(country, countryArr);
-        destCountry = getCountryByLongCode(trade.dest_id, countryArr);
-        try {
-          // definetely export
-          arcpath(originCountry.lat, originCountry.long, destCountry.lat, destCountry.long + 0.5, colorDraw, function(err, arc) {
-            curves.add(arc);
-          });
-        }
-        catch(err) {
-          // console.log(err);
+
+        tradePercent = 100 * (exportVal - window.displayThreshold) / (window.displayMax - window.displayThreshold);
+        if (tradePercent > 100) tradePercent = 100;
+
+        if (tradePercent > window.percentThreshold)
+        {
+          colorDraw = getHexCode(tradePercent, false);
+          // console.log("tradeVal = " + tradeVal + " % = " + tradePercent);
+          originCountry = getCountryByLongCode(country, countryArr);
+          destCountry = getCountryByLongCode(trade.dest_id, countryArr);
+          try {
+            // definetely export
+            arcpath(originCountry.lat, originCountry.long, destCountry.lat, destCountry.long - 0.5, colorDraw, function(err, arc) {
+              curves.add(arc);
+            });
+          }
+          catch(err) {
+            // console.log(err);
+          }
         }
       }
     });
