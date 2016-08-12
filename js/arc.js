@@ -11,15 +11,15 @@ function findVector(latitude, longitude){
   var y = window.GLOBE_RADIUS * Math.sin(phi);
   var z = window.GLOBE_RADIUS * Math.cos(phi) * Math.cos(theta);
   // vector
-  var v = new THREE.Vector3(x, y, z);
-  return v;
+  return new THREE.Vector3(x, y, z);;
 }
 
-// cool callback
 function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, colorToDraw, importQuestionMark, callback)
 {
+  // get from and to locations in the form of threeJS vectors
   var vF = findVector(fromLatitude, fromLongitude);
-  var vT = findVector(toLatitude, toLongitude); 
+  var vT = findVector(toLatitude, toLongitude);
+  // calculate distance between them
   var dist = vF.distanceTo(vT);
   
   // here we are creating the control points for the first ones.
@@ -33,31 +33,29 @@ function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, colorToDr
   // then we create a vector for the midpoints.
   var mid = new THREE.Vector3(xC, yC, zC);
 
-  ////////////////////////// some more curve magic i guess????
+  // some more curve magic
   var smoothDist = map(dist, 0, 10, 0, 15/dist );
   mid.setLength( window.GLOBE_RADIUS * smoothDist );
   cvT.add(mid);
   cvF.add(mid);
   cvT.setLength( window.GLOBE_RADIUS * smoothDist );
   cvF.setLength( window.GLOBE_RADIUS * smoothDist );
-  ////////////////////////// end curve magic
 
-   // create curve object
-   var curve = new THREE.CubicBezierCurve3( vF, cvF, cvT, vT );
+  // create curve object
+  var curve = new THREE.CubicBezierCurve3( vF, cvF, cvT, vT );
   // create curve geometry
   var geometry2 = new THREE.Geometry();
   geometry2.vertices = curve.getPoints( 50 );
-
+  // make shaders for this object, the line opacity is not working as of right now
   var material2 = new THREE.LineBasicMaterial( { color : colorToDraw , linewidth: 3, fog: true, lineopacity: 0.8 } );
   
-  // CREATING ACTUAL 3D OBJECT TO RENDER:::
+  // this is the threeJS object that is representing path itself
   var curveObject = new THREE.Line( geometry2, material2 );
-  // added to scene a bit further below 
 
   // this is the threeJS object that is moving on this path
   var newMovingGuy = new THREE.Mesh(new THREE.SphereGeometry(3), new THREE.MeshNormalMaterial('red'));
 
-  // ?
+  // TODO
   var speed = 0.002;
 
   // this is the hash of info for this particular path to be stored in the global pathHash array
