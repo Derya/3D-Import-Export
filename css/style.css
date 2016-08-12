@@ -51,7 +51,6 @@ body, html {
   text-align: center;
   position: fixed;
   width: 300px;
-  height: 150px;
   border: 2px solid #999;
   border-radius: 5px;
   padding: 1em;
@@ -79,6 +78,11 @@ body, html {
   background: #eee;
 }
 
+.panel .label {
+  margin-top: 1em;
+  color: white;
+}
+
 .panel .product {
   margin-top: 1em;
   width: 100%;
@@ -86,12 +90,36 @@ body, html {
 }
 
 #control-panel {
+  height: 150px;
   left: 20px;
 }
 
 #info-panel {
+  top: 20px;
   right: 20px;
   overflow: auto;
+}
+
+#search-result {
+  padding: 0;
+  max-height: 400px;
+  overflow: auto;
+  width: 90%;
+  position: absolute;
+  bottom: 2em;
+  background: white;
+  list-style-type: none;
+  z-index: 1;
+}
+
+#search-result li {
+  padding: 1em;
+  display: block;
+  cursor: pointer;
+}
+
+#search-result li:hover {
+  background: #bbb;
 }
 
 .left {
@@ -100,4 +128,9 @@ body, html {
 
 .right {
   float: right;
+}
+
+.keywords {
+  font-size: .8em;
+  color: #999;
 }

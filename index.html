@@ -7,6 +7,7 @@
     <link rel="stylesheet" type="text/css" href="css/style.css">
   </head>
   <body>
+    <button id="magic" style="display:none;">magic</button>
     <div id="info">
       <h3>This is a globe!</h3>
       <div id="msg">Mouseover a country...</div>
@@ -19,7 +20,9 @@
         <button class="button right active">All</button>
       </div>
       <div class="form-control">
+        <label class="label left">Current Product: <span id="product-name">All</span></label>
         <input type="text" name="product" class="product">
+        <ul id="search-result"></ul>
       </div>
     </div>
     <div id="info-panel" class="panel"></div>
