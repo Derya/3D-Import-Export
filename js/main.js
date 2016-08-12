@@ -188,7 +188,6 @@ controls.maxDistance = 2000;
 controls.minPolarAngle = 0;
 controls.maxPolarAngle = Math.PI;
 
-<<<<<<< HEAD
 var pt; var pathHash;
 var mouse = new THREE.Vector2();
 
@@ -202,8 +201,6 @@ raycaster.linePrecision = 3;
 var intersects;
 var currentIntersected;
 
-=======
->>>>>>> 704f1777cd8d07957a65c9e98bfabe794029a2ed
 function animate() {
   requestAnimationFrame(animate);
   
