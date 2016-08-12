@@ -250,5 +250,16 @@ function animate() {
         renderer.render(scene, camera);
   }
 
+animate();
 
-      animate();
+var panels = document.getElementsByClassName('panel');
+for(var i = 0; i < panels.length; i++){
+  panels[i].addEventListener('mouseenter', function(){
+    controls.enableZoom = false;
+    controls.enableRotate = false;
+  });
+  panels[i].addEventListener('mouseleave', function(){
+    controls.enableZoom = true;
+    controls.enableRotate = true;
+  });
+};
