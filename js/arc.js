@@ -51,11 +51,10 @@ function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, colorToDr
   
   // this is the threeJS object that is representing path itself
   var curveObject = new THREE.Line( geometry2, material2 );
-
   // this is the threeJS object that is moving on this path
   var newMovingGuyGeom = new THREE.Geometry();
-  newMovingGuyGeom.vertices.push(new Vector2(-2, 8, 0));
-  newMovingGuyGeom.vertices.push(new Vector2(2, 8, 0));
+  newMovingGuyGeom.vertices.push(new THREE.Vector3(0,2,0));
+  newMovingGuyGeom.vertices.push(new THREE.Vector3(0,2,0));
   var material = new THREE.LineBasicMaterial( { color: colorToDraw, linewidth: 3 } );
   var newMovingGuy = new THREE.Line(newMovingGuyGeom, material);
 
