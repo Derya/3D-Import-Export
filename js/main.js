@@ -1,5 +1,6 @@
 window.GLOBE_RADIUS = 200;
 window.GLOBE_HALF_CIRCUMF = Math.PI * window.GLOBE_RADIUS;
+window.minSpeed = 0.001; window.maxSpeed = 0.01;
 
 import { scene, camera, renderer } from './scene';
 import { setEvents } from './setEvents';
@@ -135,7 +136,7 @@ d3.json('data/world.json', function (err, data) {
     if (!country) return;
     if (selectedCountry && (country.code === selectedCountry.code)) return;
 
-    window.pathHashes = [];
+    window.pathData = [];
 
     if (country) {
       countryLongCode = getCountryByFullName(country.code, countryArr).longCode;
@@ -181,7 +182,7 @@ var controls = new OrbitControls(camera);
 controls.enablePan = false;
 controls.enableZoom = true;
 controls.enableRotate = true;
-// controls.minDistance = 900;
+controls.minDistance = 900;
 controls.maxDistance = 2000;
 controls.minPolarAngle = 0;
 controls.maxPolarAngle = Math.PI;
@@ -191,10 +192,10 @@ var pt; var pathHash;
 function animate() {
   requestAnimationFrame(animate);
 
-  if (window.pathHashes && window.pathHashes.length > 0)
+  if (window.pathData && window.pathData.length > 0)
   {
-    for(var i = 0; i < window.pathHashes.length; i++) {
-      pathHash = window.pathHashes[i];
+    for(var i = 0; i < window.pathData.length; i++) {
+      pathHash = window.pathData[i];
       pt = pathHash.curve.getPoint(pathHash.position);
       pathHash.movingGuy.position.set(pt.x, pt.y, pt.z);
       if (pathHash.importQuestionMark) {
