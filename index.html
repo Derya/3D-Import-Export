@@ -7,12 +7,25 @@
     <link rel="stylesheet" type="text/css" href="css/style.css">
   </head>
   <body>
-      <div id="info">
+    <div id="info">
       <h3>This is a globe!</h3>
       <div id="msg">Mouseover a country...</div>
     </div>
     <div id="loading">Loading...</div>
+    <div id="control-panel" class="panel">
+      <div class="form-control">
+        <button class="button left">Export</button>
+        <button class="button">Import</button>
+        <button class="button right active">All</button>
+      </div>
+      <div class="form-control">
+        <input type="text" name="product" class="product">
+      </div>
+    </div>
+    <div id="info-panel" class="panel"></div>
 
+    <script src="jquery-3.1.0.js"></script>
+    <script src="scripts/interface.js"></script>
     <script src="node_modules/babel-core/browser-polyfill.js"></script>
     <script src="node_modules/babel-core/browser.js"></script>
     <script src="node_modules/es6-module-loader/dist/es6-module-loader.js"></script>
