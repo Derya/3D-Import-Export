@@ -25,21 +25,23 @@ function getData(country, format, fn){
   });
 }
 
-function calcColor(min, max, val)
+function calcColor(minHue, maxHue, val)
 {
-    var minHue = 240; var maxHue = 0;
+  var min = 0; var max = 100;
+    // var minHue = 140; var maxHue = 0;
     var curPercent = (val - min) / (max-min);
-    var colString = "hsl(" + Math.floor(((curPercent * (maxHue-minHue) ) + minHue)) + ",100%,50%)";
+    var colString = "hsl(" + Math.floor(((curPercent * (maxHue-minHue) ) + minHue)) + ",82%,59%)";
 
     return "#" + tinycolor(colString).toHex();
-}
+  }
 
 // import? is boolean, true for import false for export
 function getHexCode(tradePercent, importQuestionMark)
 {
   if (importQuestionMark) 
-    return calcColor(0, 100, tradePercent);
-  return "#0fffff";
+    return calcColor(0, 80, tradePercent);
+  else
+    return calcColor(150, 250, tradePercent);
 }
 
 // draw either import or export data or both evidently, depending on input data
@@ -64,7 +66,7 @@ function drawData(country, format, countryArr, curves){
 
     data.forEach(function(trade){
       var importVal, exportVal, colorDraw, originCountry, destCountry, tradePercent;
-
+      var distance = 0.5;
       // draw import if it exists
       if (trade.import_val)
       {
@@ -76,12 +78,13 @@ function drawData(country, format, countryArr, curves){
         if (tradePercent > 0)
         {
           colorDraw = getHexCode(tradePercent, true);
+
           // console.log("tradeVal = " + tradeVal + " % = " + tradePercent);
           originCountry = getCountryByLongCode(country, countryArr);
           destCountry = getCountryByLongCode(trade.dest_id, countryArr);
           try {
             // definetely import
-            arcpath(originCountry.lat, originCountry.long, destCountry.lat, destCountry.long - 0.5, colorDraw, true, function(err, objects) {
+            arcpath(originCountry.lat, originCountry.long, destCountry.lat - distance, destCountry.long - distance, colorDraw, true, function(err, objects) {
               for (var i = 0; i < objects.length; i++) curves.add(objects[i]);
             });
           }
@@ -90,23 +93,25 @@ function drawData(country, format, countryArr, curves){
           }
         }
       }
+
       // draw export if it exists
       if (trade.export_val)
       {
-        exportVal = trade.export_val;
+        exportVal = Math.log(trade.export_val);
 
-        tradePercent = 100 * (exportVal - window.displayThreshold) / (window.displayMax - window.displayThreshold);
+        tradePercent = 100 * (exportVal - window.displayMin) / (window.displayMax - window.displayMin);
         if (tradePercent > 100) tradePercent = 100;
-
-        if (tradePercent > window.percentThreshold)
+        console.log(exportVal);
+        if (tradePercent > 0)
         {
           colorDraw = getHexCode(tradePercent, false);
+          console.log(colorDraw);
           // console.log("tradeVal = " + tradeVal + " % = " + tradePercent);
           originCountry = getCountryByLongCode(country, countryArr);
           destCountry = getCountryByLongCode(trade.dest_id, countryArr);
           try {
             // definetely export
-            arcpath(originCountry.lat, originCountry.long, destCountry.lat, destCountry.long + 0.5, colorDraw, false, function(err, objects) {
+            arcpath(originCountry.lat, originCountry.long, destCountry.lat + distance, destCountry.long + distance, colorDraw, false, function(err, objects) {
               for (var i = 0; i < objects.length; i++) curves.add(objects[i]);
             });
           }
@@ -115,11 +120,13 @@ function drawData(country, format, countryArr, curves){
           }
         }
       }
+
     });
+
   })
 }
 
 export {
-    getData,
-    drawData
+  getData,
+  drawData
 };
