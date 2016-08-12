@@ -187,16 +187,14 @@ controls.maxDistance = 2000;
 controls.minPolarAngle = 0;
 controls.maxPolarAngle = Math.PI;
 
-var pt; var pathHash;
-
 function animate() {
   requestAnimationFrame(animate);
 
   if (window.pathData && window.pathData.length > 0)
   {
     for(var i = 0; i < window.pathData.length; i++) {
-      pathHash = window.pathData[i];
-      pt = pathHash.curve.getPoint(pathHash.position);
+      var pathHash = window.pathData[i];
+      var pt = pathHash.curve.getPoint(pathHash.position);
       pathHash.movingGuy.position.set(pt.x, pt.y, pt.z);
       if (pathHash.importQuestionMark) {
         pathHash.position = (pathHash.position <= 0) ? 1 : pathHash.position -= pathHash.speed;
