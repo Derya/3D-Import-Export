@@ -53,15 +53,11 @@ d3.json('data/world.json', function (err, data) {
   // get array of country objects from world.json
   var countryArr = data.objects.countries.geometries;
 
-  // create a container node and add all our curves to it
-  curves = new THREE.Object3D();
-
   // create a container node and add all our meshes
   var root = new THREE.Object3D();
   root.scale.set(2.5, 2.5, 2.5);
   root.add(baseGlobe);
   root.add(baseMap);
-  root.add(curves);
   scene.add(root);
 
   function onGlobeClick(event) { 
