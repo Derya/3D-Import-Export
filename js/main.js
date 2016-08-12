@@ -14,6 +14,7 @@ import d3 from 'd3';
 import { getData, drawData } from './getData';
 
 const OrbitControls = orbitControls.default(THREE);
+var curves;
 
 d3.json('data/world.json', function (err, data) {
 
@@ -53,7 +54,7 @@ d3.json('data/world.json', function (err, data) {
   var countryArr = data.objects.countries.geometries;
 
   // create a container node and add all our curves to it
-  var curves = new THREE.Object3D();
+  curves = new THREE.Object3D();
 
   // create a container node and add all our meshes
   var root = new THREE.Object3D();
@@ -100,7 +101,7 @@ d3.json('data/world.json', function (err, data) {
     var country = geo.search(latlng[0], latlng[1]);
 
     if (country !== null && country.code !== currentCountry) {
-      
+
       // Track the current country displayed
       currentCountry = country.code;
 
@@ -120,6 +121,9 @@ d3.json('data/world.json', function (err, data) {
       }
     }
   }
+
+
+
 
 
   function clickToRedraw(event){
@@ -156,6 +160,7 @@ d3.json('data/world.json', function (err, data) {
 
   setEvents(camera, [baseGlobe], 'click');
   setEvents(camera, [baseGlobe], 'mousemove', 10);
+
 });
 
 
@@ -188,10 +193,21 @@ controls.minPolarAngle = 0;
 controls.maxPolarAngle = Math.PI;
 
 var pt; var pathHash;
+var mouse = new THREE.Vector2();
+
+function onMouseMove(event){
+  mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+  mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1; 
+}
+
+var raycaster = new THREE.Raycaster();
+raycaster.linePrecision = 3;
+var intersects;
+var currentIntersected;
 
 function animate() {
   requestAnimationFrame(animate);
-
+  
   if (window.pathData && window.pathData.length > 0)
   {
     for(var i = 0; i < window.pathData.length; i++) {
@@ -203,10 +219,40 @@ function animate() {
       } else {
         pathHash.position = (pathHash.position >= 1) ? 0 : pathHash.position += pathHash.speed;
       }
+
+
+    }
+
+  }
+
+  //highlights curves when mouseover
+  raycaster.setFromCamera( mouse, camera );
+  window.addEventListener( 'mousemove', onMouseMove, false );
+
+  if (curves){
+    intersects = raycaster.intersectObjects( curves.children , true);
+  }
+
+  if ( intersects && intersects.length > 0 ) {
+
+
+    if ( currentIntersected) {
+      currentIntersected.material.linewidth = 1;
+    }
+    currentIntersected = intersects[ 0 ].object;
+    currentIntersected.material.linewidth = 5;
+  } 
+  else {
+
+    if ( currentIntersected !== undefined ) {
+      console.log(currentIntersected);
+      currentIntersected.material.linewidth = 1;
+
     }
   }
 
-  renderer.render(scene, camera);
-}
+        renderer.render(scene, camera);
+  }
 
-animate();
+
+      animate();
