@@ -53,7 +53,11 @@ function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, colorToDr
   var curveObject = new THREE.Line( geometry2, material2 );
 
   // this is the threeJS object that is moving on this path
-  var newMovingGuy = new THREE.Mesh(new THREE.SphereGeometry(3), new THREE.MeshNormalMaterial('red'));
+  var newMovingGuyGeom = new THREE.Geometry();
+  newMovingGuyGeom.vertices.push(new Vector2(-2, 8, 0));
+  newMovingGuyGeom.vertices.push(new Vector2(2, 8, 0));
+  var material = new THREE.LineBasicMaterial( { color: colorToDraw, linewidth: 3 } );
+  var newMovingGuy = new THREE.Line(newMovingGuyGeom, material);
 
   // TODO
   var speed = 0.002;
@@ -69,7 +73,9 @@ function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, colorToDr
     // speed
     speed: speed,
     // whether it is an import or an export
-    importQuestionMark: importQuestionMark
+    importQuestionMark: importQuestionMark,
+    // start and end locations
+    // maybe
   });
 
   if ( typeof callback == 'function'){

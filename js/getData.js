@@ -101,11 +101,11 @@ function drawData(country, format, countryArr, curves){
 
         tradePercent = 100 * (exportVal - window.displayMin) / (window.displayMax - window.displayMin);
         if (tradePercent > 100) tradePercent = 100;
-        console.log(exportVal);
+
         if (tradePercent > 0)
         {
           colorDraw = getHexCode(tradePercent, false);
-          console.log(colorDraw);
+
           // console.log("tradeVal = " + tradeVal + " % = " + tradePercent);
           originCountry = getCountryByLongCode(country, countryArr);
           destCountry = getCountryByLongCode(trade.dest_id, countryArr);

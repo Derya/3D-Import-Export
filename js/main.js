@@ -147,7 +147,7 @@ d3.json('data/world.json', function (err, data) {
       root.remove(curves);
       curves = new THREE.Object3D();
 
-      drawData(countryLongCode, 'both', countryArr, curves);
+      drawData(countryLongCode, 'import', countryArr, curves);
       
       console.log(countryLongCode);
       root.add(curves);
@@ -194,13 +194,20 @@ function animate() {
   {
     for(var i = 0; i < window.pathData.length; i++) {
       var pathHash = window.pathData[i];
-      var pt = pathHash.curve.getPoint(pathHash.position);
-      pathHash.movingGuy.position.set(pt.x, pt.y, pt.z);
+      var oldPoint = pathHash.movingGuy.position;
+      var newPoint = pathHash.curve.getPoint(pathHash.position);
+      console.log("old point: " + oldPoint + " new point: " + newPoint);
+      pathHash.movingGuy.position.set(newPoint.x, newPoint.y, newPoint.z);
+
       if (pathHash.importQuestionMark) {
         pathHash.position = (pathHash.position <= 0) ? 1 : pathHash.position -= pathHash.speed;
+        pathHash.movingGuy.rotation.z = Math.atan2(newPoint.y - oldPoint.y, newPoint.x  - oldPoint.x);
+        pathHash.movingGuy.rotation.y = Math.atan2(newPoint.x - oldPoint.x, newPoint.z  - oldPoint.z);
+        pathHash.movingGuy.rotation.x = Math.atan2(newPoint.y - oldPoint.y, newPoint.z  - oldPoint.z);
       } else {
         pathHash.position = (pathHash.position >= 1) ? 0 : pathHash.position += pathHash.speed;
       }
+
     }
   }
 
