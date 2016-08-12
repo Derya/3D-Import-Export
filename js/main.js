@@ -147,7 +147,7 @@ d3.json('data/world.json', function (err, data) {
       root.remove(curves);
       curves = new THREE.Object3D();
 
-      drawData(countryLongCode, 'both', countryArr, curves);
+      drawData(countryLongCode, 'import', countryArr, curves);
       
       console.log(countryLongCode);
       root.add(curves);

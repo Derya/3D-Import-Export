@@ -2,10 +2,7 @@
 import d3 from 'd3';
 import { arcpath } from './arc';
 
-window.displayThreshold = 100000;
-window.percentThreshold = 3;
-window.displayMaxImp = 10000000000;
-window.displayMaxExp = 10000000000;
+window.percentThreshold = 0;
 
 function getCountryByFullName(query, arr) {
   return arr.find(function(q) {return q.id == query});
@@ -28,38 +25,42 @@ function getData(country, format, fn){
   });
 }
 
-// import is boolean, true for import false for export
+function calcColor(min, max, val)
+{
+    var minHue = 240; var maxHue = 0;
+    var curPercent = (val - min) / (max-min);
+    var colString = "hsl(" + Math.floor(((curPercent * (maxHue-minHue) ) + minHue)) + ",100%,50%)";
+
+    return "#" + tinycolor(colString).toHex();
+}
+
+// import? is boolean, true for import false for export
 function getHexCode(tradePercent, importQuestionMark)
 {
-  if (importQuestionMark)
-  {
-    // get a hue from cyan to red with cyan at 1 and red at 100
-    var hue = 360 - Math.floor(tradePercent * 180 / 100);
-    // set saturation
-    var saturation = 50;   // var saturation = Math.abs(tradePercent - 50)/50; // fade to white as it approaches 50
-    // convert from hsv to hex code
-    return "#" + tinycolor({ h: hue, s: saturation, v: 50 }).toHex();
-  }
-  return "#ffffff";
+  if (importQuestionMark) 
+    return calcColor(0, 100, tradePercent);
+  return "#0fffff";
 }
 
 // draw either import or export data or both evidently, depending on input data
 function drawData(country, format, countryArr, curves){
   getData(country, format, function(data){
-    var maxVal = -1;
+    var maxVal = -1; var minVal = Infinity;
 
     for (var i = 0; i < data.length; i++)
     {
       if (data[i].import_val && data[i].import_val > maxVal)
-      {
         maxVal = data[i].import_val;
-      }
       if (data[i].export_val && data[i].export_val > maxVal)
-      {
         maxVal = data[i].export_val;
-      }
+      if (data[i].import_val && data[i].import_val < minVal)
+        minVal = data[i].import_val;
+      if (data[i].export_val && data[i].export_val < minVal)
+        minVal = data[i].export_val;
     }
-    window.displayMax = maxVal;
+    minVal += 0.03 * maxVal;
+    window.displayMax = Math.log(maxVal);
+    window.displayMin = Math.log(minVal);
 
     data.forEach(function(trade){
       var importVal, exportVal, colorDraw, originCountry, destCountry, tradePercent;
@@ -67,12 +68,12 @@ function drawData(country, format, countryArr, curves){
       // draw import if it exists
       if (trade.import_val)
       {
-        importVal = trade.import_val;
+        importVal = Math.log(trade.import_val);
 
-        tradePercent = 100 * (importVal - window.displayThreshold) / (window.displayMax - window.displayThreshold);
+        tradePercent = 100 * (importVal - window.displayMin) / (window.displayMax - window.displayMin);
         if (tradePercent > 100) tradePercent = 100;
 
-        if (tradePercent > window.percentThreshold)
+        if (tradePercent > 0)
         {
           colorDraw = getHexCode(tradePercent, true);
           // console.log("tradeVal = " + tradeVal + " % = " + tradePercent);
