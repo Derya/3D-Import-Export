@@ -50,6 +50,8 @@ function getHexCode(tradePercent, importQuestionMark)
 function drawData(country, format, product, countryArr, curves){
   if (!country) return;
   getData(country, format, product, function(data){
+    showData(data);
+
     var maxVal = -1; var minVal = Infinity;
 
     for (var i = 0; i < data.length; i++)
@@ -127,6 +129,44 @@ function drawData(country, format, product, countryArr, curves){
     });
 
   })
+}
+
+function showData(data) {
+
+  $('#data-table').find('tr').remove();
+  var header = $('<tr>');
+  $('<th>').text('To/From').appendTo(header);
+  $('<th>').text('Type').appendTo(header);
+  $('<th>').text('Value').appendTo(header);
+  $('#data-table').append(header);
+
+  function totalVal(a) {
+    var importVal = a.import_val || 0;
+    var exportVal = a.export_val || 0;
+    return importVal + exportVal;
+  }
+
+  var sortedData = data.sort(function(a, b){
+    return totalVal(b) - totalVal(a);
+  })
+
+  sortedData.forEach(function(ele){
+    if (ele.import_val) {
+      var tr = $('<tr>');
+      $('<td>').text(ele.dest_id).appendTo(tr);
+      $('<td>').text('import').appendTo(tr);
+      $('<td>').text(`$${ele.import_val}`).appendTo(tr);
+      $('#data-table').append(tr);
+    }
+    if (ele.export_val) {
+      var tr = $('<tr>');
+      $('<td>').text(ele.dest_id).appendTo(tr);
+      $('<td>').text('export').appendTo(tr);
+      $('<td>').text(`$${ele.export_val}`).appendTo(tr);
+      $('#data-table').append(tr);
+    }
+  });
+ 
 }
 
 export {

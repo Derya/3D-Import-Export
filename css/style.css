@@ -95,9 +95,15 @@ body, html {
 }
 
 #info-panel {
+  color: white;
+  text-align: left;
   top: 20px;
   right: 20px;
   overflow: auto;
+}
+
+#data-table {
+  width: 100%;
 }
 
 #search-result {
