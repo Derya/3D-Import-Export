@@ -1,7 +1,7 @@
 window.params = {
     format: 'all',
     sitc_id: '000000',
-    currentCountry: null
+    country: null
 }; 
 var sitcNames;
 

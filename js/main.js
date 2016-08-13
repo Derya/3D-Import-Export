@@ -43,6 +43,7 @@ d3.json('data/world.json', function (err, data) {
   baseGlobe.addEventListener('ondblclick', onGlobeClick);
   baseGlobe.addEventListener('click', clickToRedraw);
   baseGlobe.addEventListener('mousemove', onGlobeMousemove);
+  document.getElementById('magic').addEventListener('click', magicRedraw);
 
   // add base map layer with all countries
   let worldTexture = mapTexture(countries, '#112D43');
@@ -118,9 +119,12 @@ d3.json('data/world.json', function (err, data) {
     }
   }
 
-
-
-
+  function magicRedraw(){
+    root.remove(curves);
+    curves = new THREE.Object3D();
+    drawData(window.params.country, window.params.format, window.params.sitc_id, countryArr, curves);      
+    root.add(curves);
+  }
 
   function clickToRedraw(event){
 
@@ -146,10 +150,8 @@ d3.json('data/world.json', function (err, data) {
     if (countryLongCode) {
       root.remove(curves);
       curves = new THREE.Object3D();
-
-      drawData(countryLongCode, 'both', countryArr, curves);
-      
-      console.log(countryLongCode);
+      window.params.country = countryLongCode;
+      drawData(window.params.country, window.params.format, window.params.sitc_id, countryArr, curves);      
       root.add(curves);
     }
   }
