@@ -215,27 +215,37 @@ function animate() {
 
     // loop over paths
     for(var j = 0; j < window.pathData.length; j++) {
+      // get the hash of data for this path
       var pathHash = window.pathData[j];
 
       // loop over moving guys
       for (var i = 0; i < pathHash.movingGuys.length; i++)
       {
+        // get the hash of data for this moving guy
         var movingGuyHash = pathHash.movingGuys[i];
+
         if (movingGuyHash.importQuestionMark) {
+          // current ACTUAL position, in 3D vector (x,y,z)
           var oldPoint = movingGuyHash.movingGuy.position;
+          // note that movingGuyHash.position is NOT a 3D vector, it is the 0-1 floating point number that indicates
+          // "position" along the curve
           movingGuyHash.position = (movingGuyHash.position <= 0) ? 1 : movingGuyHash.position -= movingGuyHash.speed;
+          // new position, in 3D vector (x,y,z) calculated from the curve
           var newPoint = pathHash.curve.getPoint(movingGuyHash.position);
+          // set angle of the moving guy correctly
           movingGuyHash.movingGuy.lookAt( newPoint );
+          // then move arrow to new position
           movingGuyHash.movingGuy.position.set(newPoint.x, newPoint.y, newPoint.z);
         } else {
+          // same code for export case
           var oldPoint = movingGuyHash.movingGuy.position;
+          // only vvv this line vvv is different, so i guess should refactor somehow
           movingGuyHash.position = (movingGuyHash.position >= 0) ? 0 : movingGuyHash.position += movingGuyHash.speed;
           var newPoint = pathHash.curve.getPoint(movingGuyHash.position);
           movingGuyHash.movingGuy.lookAt( newPoint );
           movingGuyHash.movingGuy.position.set(newPoint.x, newPoint.y, newPoint.z);
         }
       }
-
 
     }
 
