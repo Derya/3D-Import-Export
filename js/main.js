@@ -1,8 +1,15 @@
+// globe size
 window.GLOBE_RADIUS = 200;
 window.GLOBE_HALF_CIRCUMF = Math.PI * window.GLOBE_RADIUS;
-window.minSpeed = 0.001; window.maxSpeed = 0.01;
+
+//window.minSpeed = 0.001; window.maxSpeed = 0.01;
+
+// thicknesses of arc lines
 window.lineUnselectedThickness = 2;
 window.lineSelectedThickness = 5;
+
+const OrbitControls = orbitControls.default(THREE);
+var curves;
 
 import { scene, camera, renderer } from './scene';
 import { setEvents } from './setEvents';
@@ -15,8 +22,6 @@ import * as orbitControls from 'OrbitControls';
 import d3 from 'd3';
 import { getData, drawData } from './getData';
 
-const OrbitControls = orbitControls.default(THREE);
-var curves;
 
 d3.json('data/world.json', function (err, data) {
 
@@ -42,7 +47,8 @@ d3.json('data/world.json', function (err, data) {
   baseGlobe.rotation.y = Math.PI;
 
   // TODO: implement this!
-  baseGlobe.addEventListener('ondblclick', onGlobeClick);
+  //baseGlobe.addEventListener('ondblclick', onGlobeClick);
+
   baseGlobe.addEventListener('click', clickToRedraw);
   baseGlobe.addEventListener('mousemove', onGlobeMousemove);
   document.getElementById('magic').addEventListener('click', magicRedraw);
@@ -91,7 +97,7 @@ d3.json('data/world.json', function (err, data) {
   }
 
   function onGlobeMousemove(event) {
-    var map, material;
+    var map; var material;
 
     // Get pointc, convert to latitude/longitude
     var latlng = getEventCenter.call(this, event);
@@ -103,7 +109,6 @@ d3.json('data/world.json', function (err, data) {
 
       // Track the current country displayed
       currentCountry = country.code;
-
 
       // Update the html
       d3.select("#msg").html(country.code);
@@ -273,7 +278,7 @@ function animate() {
   else {
 
     if ( currentIntersected !== undefined ) {
-      console.log(currentIntersected);
+      // console.log(currentIntersected);
       currentIntersected.material.linewidth = window.lineUnselectedThickness;
 
     }
