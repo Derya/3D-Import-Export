@@ -51,34 +51,82 @@ function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, colorToDr
   
   // this is the threeJS object that is representing path itself
   var curveObject = new THREE.Line( geometry2, material2 );
-  // this is the threeJS object that is moving on this path
-  var newMovingGuyGeom = new THREE.Geometry();
-  newMovingGuyGeom.vertices.push(new THREE.Vector3(0,2,0));
-  newMovingGuyGeom.vertices.push(new THREE.Vector3(0,2,0));
-  var material = new THREE.LineBasicMaterial( { color: colorToDraw, linewidth: 3 } );
-  var newMovingGuy = new THREE.Line(newMovingGuyGeom, material);
 
-  // TODO
+  // hard coding these in here, later we can use these to indicate amount of trade going over this route
+  // we could have more groups of arrows, or we could just have more arrows per group as potential ways to indicate
+  // how much trade is going
+  var numMovingGuyClusters = 2;
+  var clusterDensityMovingGuys = 2;
+  // 0.015 looks like it works well
+  const clusterSpacing = 0.015;
+  // arrow size
+  const arrowSize = 1.5;
+
+  // this is the array of hashes holding all the moving object data
+  var movingGuys = [];
+
+  // this is the array of threeJS objects that we will add to our "curves" object wrapper via the callback function later
+  // this is not necessary to have seperate from the above array, but the rest of the code is structured to accomodate it this way 
+  // so I am letting it be for now. this array is used at the bottom, in the callback function
+  // start with just the curve object, add the moving guys in the loop below
+  var returnObjArr = [curveObject];
+
+  // hard coding in speed for now. later we will want to calculate this based on arc length so that nearby countries
+  // don't have extremely slow travelling arrows
   var speed = 0.002;
+
+  // start somewhere random
+  var position = Math.random();
+
+  for (var i = 0; i < numMovingGuyClusters; i++)
+  {
+    // move forward in position to disperse the clusters
+    position += 1/numMovingGuyClusters - clusterSpacing;
+    // wrap if necessary
+    if (position > 1) position -= 1;
+
+    for (var j = 0; j < clusterDensityMovingGuys; j++)
+    {
+      // move forward by clusterSpacing
+      position += clusterSpacing;
+      // wrap if necessary
+      if (position > 1) position -= 1;
+
+      // build the arrow object
+      var newMovingGuyGeom = new THREE.Geometry();
+      newMovingGuyGeom.vertices.push(new THREE.Vector3(0, -arrowSize, -arrowSize));
+      newMovingGuyGeom.vertices.push(new THREE.Vector3(0, 0, arrowSize));
+      newMovingGuyGeom.vertices.push(new THREE.Vector3(0, arrowSize, -arrowSize));
+      var newMovingGuyMaterial = new THREE.LineBasicMaterial( { color: colorToDraw, linewidth: 3 } );
+      var newMovingGuy = new THREE.Line(newMovingGuyGeom, newMovingGuyMaterial);
+
+      // push to object wrapper array
+      returnObjArr.push(newMovingGuy);
+
+      // push again to window data array along with other info
+      movingGuys.push({
+        // threeJS 3D object
+        movingGuy: newMovingGuy,
+        // current position on the arc, 0-1
+        position: position,
+        // speed
+        speed: speed,
+        // whether it is an import or an export
+        importQuestionMark: importQuestionMark,
+      });
+    }
+  }
 
   // this is the hash of info for this particular path to be stored in the global pathHash array
   window.pathData.push({
-    // threeJS 3D object
-    movingGuy: newMovingGuy,
     // threeJS curve object
     curve: curve,
-    // current position on the arc (initialized to random point)
-    position: Math.random(),
-    // speed
-    speed: speed,
-    // whether it is an import or an export
-    importQuestionMark: importQuestionMark,
-    // start and end locations
-    // maybe
+    // array of moving guy objects
+    movingGuys: movingGuys
   });
 
   if ( typeof callback == 'function'){
-    callback(null, [curveObject,newMovingGuy]);
+    callback(null, returnObjArr);
   }
 }
 

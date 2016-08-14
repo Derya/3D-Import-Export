@@ -192,22 +192,25 @@ function animate() {
 
   if (window.pathData && window.pathData.length > 0)
   {
-    for(var i = 0; i < window.pathData.length; i++) {
-      var pathHash = window.pathData[i];
-      var oldPoint = pathHash.movingGuy.position;
-      var newPoint = pathHash.curve.getPoint(pathHash.position);
-      console.log("old point: " + oldPoint + " new point: " + newPoint);
-      pathHash.movingGuy.position.set(newPoint.x, newPoint.y, newPoint.z);
 
-      if (pathHash.importQuestionMark) {
-        pathHash.position = (pathHash.position <= 0) ? 1 : pathHash.position -= pathHash.speed;
-        pathHash.movingGuy.rotation.z = Math.atan2(newPoint.y - oldPoint.y, newPoint.x  - oldPoint.x);
-        pathHash.movingGuy.rotation.y = Math.atan2(newPoint.x - oldPoint.x, newPoint.z  - oldPoint.z);
-        pathHash.movingGuy.rotation.x = Math.atan2(newPoint.y - oldPoint.y, newPoint.z  - oldPoint.z);
-      } else {
-        pathHash.position = (pathHash.position >= 1) ? 0 : pathHash.position += pathHash.speed;
+    // loop over paths
+    for(var j = 0; j < window.pathData.length; j++) {
+      var pathHash = window.pathData[j];
+
+      // loop over moving guys
+      for (var i = 0; i < pathHash.movingGuys.length; i++)
+      {
+        var movingGuyHash = pathHash.movingGuys[i];
+        if (movingGuyHash.importQuestionMark) {
+          var oldPoint = movingGuyHash.movingGuy.position;
+          movingGuyHash.position = (movingGuyHash.position <= 0) ? 1 : movingGuyHash.position -= movingGuyHash.speed;
+          var newPoint = pathHash.curve.getPoint(movingGuyHash.position);
+          movingGuyHash.movingGuy.lookAt( newPoint );
+          movingGuyHash.movingGuy.position.set(newPoint.x, newPoint.y, newPoint.z);
+        } else { // TODO: vvvvvv implement export case below vvvvvv
+          // movingGuyHash.position = (movingGuyHash.position >= 1) ? 0 : movingGuyHash.position += movingGuyHash.speed;
+        }
       }
-
     }
   }
 

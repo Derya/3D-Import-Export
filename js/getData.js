@@ -45,6 +45,7 @@ function getHexCode(tradePercent, importQuestionMark)
 }
 
 // draw either import or export data or both evidently, depending on input data
+// note well: curves variable is a wrapper for more than just the curve objects, all the moving arrow objects are held in it as well
 function drawData(country, format, countryArr, curves){
   getData(country, format, function(data){
     var maxVal = -1; var minVal = Infinity;
