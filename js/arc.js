@@ -57,9 +57,11 @@ function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, colorToDr
   // how much trade is going
   var numMovingGuyClusters = 2;
   var clusterDensityMovingGuys = 2;
-  // 0.015 looks like it works well
+  // 0.015 looks like it works well. the problem is that this is proportional to the arc length, so it is not
+  // consistent between arcs. this is easy to fix by calculating this based on the arc length, so i'll implement
+  // that later
   const clusterSpacing = 0.015;
-  // arrow size
+  // arrow size 
   const arrowSize = 1.5;
 
   // this is the array of hashes holding all the moving object data
@@ -82,14 +84,14 @@ function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, colorToDr
   {
     // move forward in position to disperse the clusters
     position += 1/numMovingGuyClusters - clusterSpacing;
-    // wrap if necessary
+    // wrap back if necessary
     if (position > 1) position -= 1;
 
     for (var j = 0; j < clusterDensityMovingGuys; j++)
     {
       // move forward by clusterSpacing
       position += clusterSpacing;
-      // wrap if necessary
+      // wrap back if necessary
       if (position > 1) position -= 1;
 
       // build the arrow object
