@@ -150,13 +150,14 @@ d3.json('data/world.json', function (err, data) {
     }
 
     if (countryLongCode) {
-      root.remove(curves);
-      curves = new THREE.Object3D();
-
       window.params.country = countryLongCode;
-      drawData(window.params.country, window.params.format, window.params.sitc_id, countryArr, curves);      
+      magicRedraw();
+      // root.remove(curves);
+      // curves = new THREE.Object3D();
 
-      root.add(curves);
+      // drawData(window.params.country, window.params.format, window.params.sitc_id, countryArr, curves);      
+
+      // root.add(curves);
     }
   }
 

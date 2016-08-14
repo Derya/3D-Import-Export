@@ -55,7 +55,7 @@ function drawData(country, format, product, countryArr, curves){
   if (!country) return;
 
   getData(country, format, product, function(data){
-    showData(data);
+    showData(data, countryArr);
 
     var maxVal = -1; var minVal = Infinity;
 
@@ -137,7 +137,11 @@ function drawData(country, format, product, countryArr, curves){
   })
 }
 
-function showData(data) {
+function showData(data, countryArr) {
+
+  var countryName;
+  countryName = getCountryByLongCode(window.params.country, countryArr).id || '';
+  $('#current-country').text(countryName);
 
   $('#data-table').find('tr').remove();
   var header = $('<tr>');
@@ -157,16 +161,22 @@ function showData(data) {
   })
 
   sortedData.forEach(function(ele){
+    var thisCountry = getCountryByLongCode(ele.dest_id, countryArr);
+    if (thisCountry) {
+      countryName = thisCountry.id;
+    } else {
+      return;
+    }
     if (ele.import_val) {
       var tr = $('<tr>');
-      $('<td>').text(ele.dest_id).appendTo(tr);
+      $('<td>').text(countryName).appendTo(tr);
       $('<td>').text('import').appendTo(tr);
       $('<td>').text(`$${ele.import_val}`).appendTo(tr);
       $('#data-table').append(tr);
     }
     if (ele.export_val) {
       var tr = $('<tr>');
-      $('<td>').text(ele.dest_id).appendTo(tr);
+      $('<td>').text(countryName).appendTo(tr);
       $('<td>').text('export').appendTo(tr);
       $('<td>').text(`$${ele.export_val}`).appendTo(tr);
       $('#data-table').append(tr);
