@@ -47,7 +47,7 @@ function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, colorToDr
   var geometry2 = new THREE.Geometry();
   geometry2.vertices = curve.getPoints( 50 );
   // make shaders for this object, the line opacity is not working as of right now
-  var material2 = new THREE.LineBasicMaterial( { color : colorToDraw , linewidth: 3, fog: true, lineopacity: 0.8 } );
+  var material2 = new THREE.LineBasicMaterial( { color : colorToDraw , linewidth: window.lineUnselectedThickness, fog: true, lineopacity: 0.8 } );
   
   // this is the threeJS object that is representing path itself
   var curveObject = new THREE.Line( geometry2, material2 );

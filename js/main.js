@@ -1,6 +1,8 @@
 window.GLOBE_RADIUS = 200;
 window.GLOBE_HALF_CIRCUMF = Math.PI * window.GLOBE_RADIUS;
 window.minSpeed = 0.001; window.maxSpeed = 0.01;
+window.lineUnselectedThickness = 2;
+window.lineSelectedThickness = 5;
 
 import { scene, camera, renderer } from './scene';
 import { setEvents } from './setEvents';
@@ -225,8 +227,12 @@ function animate() {
           var newPoint = pathHash.curve.getPoint(movingGuyHash.position);
           movingGuyHash.movingGuy.lookAt( newPoint );
           movingGuyHash.movingGuy.position.set(newPoint.x, newPoint.y, newPoint.z);
-        } else { // TODO: vvvvvv implement export case below vvvvvv
-          // movingGuyHash.position = (movingGuyHash.position >= 1) ? 0 : movingGuyHash.position += movingGuyHash.speed;
+        } else {
+          var oldPoint = movingGuyHash.movingGuy.position;
+          movingGuyHash.position = (movingGuyHash.position >= 0) ? 0 : movingGuyHash.position += movingGuyHash.speed;
+          var newPoint = pathHash.curve.getPoint(movingGuyHash.position);
+          movingGuyHash.movingGuy.lookAt( newPoint );
+          movingGuyHash.movingGuy.position.set(newPoint.x, newPoint.y, newPoint.z);
         }
       }
 
@@ -247,16 +253,16 @@ function animate() {
 
 
     if ( currentIntersected) {
-      currentIntersected.material.linewidth = 1;
+      currentIntersected.material.linewidth = window.lineUnselectedThickness;
     }
     currentIntersected = intersects[ 0 ].object;
-    currentIntersected.material.linewidth = 5;
+    currentIntersected.material.linewidth = window.lineSelectedThickness;
   } 
   else {
 
     if ( currentIntersected !== undefined ) {
       console.log(currentIntersected);
-      currentIntersected.material.linewidth = 1;
+      currentIntersected.material.linewidth = window.lineUnselectedThickness;
 
     }
   }
