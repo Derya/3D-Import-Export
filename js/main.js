@@ -240,10 +240,11 @@ function animate() {
           // same code for export case
           var oldPoint = movingGuyHash.movingGuy.position;
           // only vvv this line vvv is different, so i guess should refactor somehow
-          movingGuyHash.position = (movingGuyHash.position >= 0) ? 0 : movingGuyHash.position += movingGuyHash.speed;
+          movingGuyHash.position = (movingGuyHash.position >= 1) ? 0 : movingGuyHash.position += movingGuyHash.speed;
           var newPoint = pathHash.curve.getPoint(movingGuyHash.position);
           movingGuyHash.movingGuy.lookAt( newPoint );
           movingGuyHash.movingGuy.position.set(newPoint.x, newPoint.y, newPoint.z);
+          if (j == 0) console.log("position: " + movingGuyHash.position);
         }
       }
 
@@ -276,8 +277,7 @@ function animate() {
 
     }
   }
-
-        renderer.render(scene, camera);
+    renderer.render(scene, camera);
   }
 
 animate();
