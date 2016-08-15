@@ -48,8 +48,10 @@ function arcpath(originCountry, destCountry, colorToDraw, importQuestionMark, va
   // then we create a vector for the midpoints.
   var mid = new THREE.Vector3(xC, yC, zC);
 
-  // some more curve magic
-  var smoothDist = map(dist, 0, 10, 0, 15/dist );
+  // map the distance to 1.0 --> 1.7
+  // we want further countries to have higher arcs
+  var heightConst = map(dist, 0, window.GLOBE_DIAMETER, 11, 17);
+  var smoothDist = map( dist, 0, 10, 0, heightConst/dist );
   mid.setLength( window.GLOBE_RADIUS * smoothDist );
   cvT.add(mid);
   cvF.add(mid);

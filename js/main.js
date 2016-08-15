@@ -1,6 +1,7 @@
 // globe size
 window.GLOBE_RADIUS = 200;
 window.GLOBE_HALF_CIRCUMF = Math.PI * window.GLOBE_RADIUS;
+window.GLOBE_DIAMETER = window.GLOBE_RADIUS * 2;
 
 //window.minSpeed = 0.001; window.maxSpeed = 0.01;
 
@@ -191,7 +192,7 @@ var controls = new OrbitControls(camera);
 controls.enablePan = false;
 controls.enableZoom = true;
 controls.enableRotate = true;
-controls.minDistance = 900;
+// controls.minDistance = 900;
 controls.maxDistance = 2000;
 controls.minPolarAngle = 0;
 controls.maxPolarAngle = Math.PI;
