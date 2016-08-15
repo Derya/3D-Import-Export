@@ -142,6 +142,13 @@ function showData(data, countryArr) {
   $('#current-country').text(countryName);
 
   $('#data-table').find('tr').remove();
+  $('#info-panel').find('.no-data-message').remove();
+
+  if (data.length == 0) {
+    var noData = $('<h4>').text('Data of this country is not available.').css('color', 'salmon').addClass('no-data-message').appendTo($('#info-panel'));
+    return;
+  }
+
   var header = $('<tr>');
   $('<th>').text('To/From').appendTo(header);
   $('<th>').text('Type').appendTo(header);
