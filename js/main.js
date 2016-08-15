@@ -285,21 +285,25 @@ function animate() {
     currentIntersected = intersects[0].object;
     currentIntersected.material.linewidth = window.lineSelectedThickness;
 
-    var index = $.inArray( currentIntersected.uuid, all_curves_uuid);
+    var index = $.inArray(currentIntersected.uuid, all_curves_uuid);
 
     var info = window.pathData[index];
-    var originInfo = info.origin.id;
-    var destInfo = info.destination.id;
-    if(info.importQuestionMark){
-      var importInfo = "import";
-    }
-    else {
-      var importInfo = "export";
-    }
-    
-    var valueInfo = info.value;
 
-    $("#curve_info").html(originInfo + " " + destInfo + " "+ importInfo + " $" + valueInfo);
+    if (info) {
+      var originInfo = info.origin.id;
+      var destInfo = info.destination.id;
+      if(info.importQuestionMark){
+        var importInfo = "import";
+      }
+      else {
+        var importInfo = "export";
+      }
+      
+      var valueInfo = info.value;
+
+      $("#curve_info").html(originInfo + " " + destInfo + " "+ importInfo + " $" + valueInfo);
+    }
+
   } 
   else {
 
