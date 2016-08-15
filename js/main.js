@@ -204,8 +204,13 @@ var pt; var pathHash;
 var mouse = new THREE.Vector2();
 
 function onMouseMove(event){
+  event.preventDefault();
   mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
   mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1; 
+  for(var i=0; i< $(".tooltips").length; i++){
+    tooltips[i].style.top = mouse.y +20;
+    tooltips[i].style.left = mouse.x +20;
+  }
 }
 
 var raycaster = new THREE.Raycaster();
@@ -262,7 +267,8 @@ function animate() {
   //highlights curves when mouseover
   raycaster.setFromCamera( mouse, camera );
   window.addEventListener( 'mousemove', onMouseMove, false );
-  
+
+
   if (curves){
     intersects = raycaster.intersectObjects( curves.children , true);
   }
@@ -272,18 +278,26 @@ function animate() {
     if ( currentIntersected) {
       currentIntersected.material.linewidth = window.lineUnselectedThickness;
     }
-    currentIntersected = intersects[ 0 ].object;
-
-    d3.select("#curve_info").html(currentIntersected.uuid);
+    currentIntersected = intersects[0].object;
     currentIntersected.material.linewidth = window.lineSelectedThickness;
+    var index = $.inArray( currentIntersected, curves.children);
+   
+    // var index = currentIntersected.id;
+    var info = window.pathData[index];
+    debugger;
+    console.log(index);
 
+    var originInfo = info.origin.id;
+    var destInfo = info.destination.id;
+  
+    $("#curve_info").html(originInfo + destInfo);
   } 
   else {
 
     if ( currentIntersected !== undefined ) {
       // console.log(currentIntersected);
       currentIntersected.material.linewidth = window.lineUnselectedThickness;
-
+      intersects = [];
     }
   }
     renderer.render(scene, camera);

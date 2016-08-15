@@ -140,3 +140,13 @@ body, html {
   font-size: .8em;
   color: #999;
 }
+
+.tooltip span{
+  display: none;
+}
+
+.tooltip:hover span{
+  display: block;
+  position: fixed;
+  overflow:hidden;
+}
