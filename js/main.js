@@ -1,6 +1,15 @@
+// globe size
 window.GLOBE_RADIUS = 200;
 window.GLOBE_HALF_CIRCUMF = Math.PI * window.GLOBE_RADIUS;
-window.minSpeed = 0.001; window.maxSpeed = 0.01;
+
+//window.minSpeed = 0.001; window.maxSpeed = 0.01;
+
+// thicknesses of arc lines
+window.lineUnselectedThickness = 2;
+window.lineSelectedThickness = 5;
+
+const OrbitControls = orbitControls.default(THREE);
+var curves;
 
 import { scene, camera, renderer } from './scene';
 import { setEvents } from './setEvents';
@@ -13,8 +22,6 @@ import * as orbitControls from 'OrbitControls';
 import d3 from 'd3';
 import { getData, drawData } from './getData';
 
-const OrbitControls = orbitControls.default(THREE);
-var curves;
 
 d3.json('data/world.json', function (err, data) {
 
@@ -40,9 +47,11 @@ d3.json('data/world.json', function (err, data) {
   baseGlobe.rotation.y = Math.PI;
 
   // TODO: implement this!
-  baseGlobe.addEventListener('ondblclick', onGlobeClick);
+  //baseGlobe.addEventListener('ondblclick', onGlobeClick);
+
   baseGlobe.addEventListener('click', clickToRedraw);
   baseGlobe.addEventListener('mousemove', onGlobeMousemove);
+  document.getElementById('magic').addEventListener('click', magicRedraw);
 
   // add base map layer with all countries
   let worldTexture = mapTexture(countries, '#112D43');
@@ -88,7 +97,7 @@ d3.json('data/world.json', function (err, data) {
   }
 
   function onGlobeMousemove(event) {
-    var map, material;
+    var map; var material;
 
     // Get pointc, convert to latitude/longitude
     var latlng = getEventCenter.call(this, event);
@@ -100,7 +109,6 @@ d3.json('data/world.json', function (err, data) {
 
       // Track the current country displayed
       currentCountry = country.code;
-
 
       // Update the html
       d3.select("#msg").html(country.code);
@@ -118,9 +126,12 @@ d3.json('data/world.json', function (err, data) {
     }
   }
 
-
-
-
+  function magicRedraw(){
+    root.remove(curves);
+    curves = new THREE.Object3D();
+    drawData(window.params.country, window.params.format, window.params.sitc_id, countryArr, curves);      
+    root.add(curves);
+  }
 
   function clickToRedraw(event){
 
@@ -144,13 +155,14 @@ d3.json('data/world.json', function (err, data) {
     }
 
     if (countryLongCode) {
-      root.remove(curves);
-      curves = new THREE.Object3D();
+      window.params.country = countryLongCode;
+      magicRedraw();
+      // root.remove(curves);
+      // curves = new THREE.Object3D();
 
-      drawData(countryLongCode, 'both', countryArr, curves);
-      
-      console.log(countryLongCode);
-      root.add(curves);
+      // drawData(window.params.country, window.params.format, window.params.sitc_id, countryArr, curves);      
+
+      // root.add(curves);
     }
   }
 
@@ -206,16 +218,41 @@ function animate() {
   
   if (window.pathData && window.pathData.length > 0)
   {
-    for(var i = 0; i < window.pathData.length; i++) {
-      var pathHash = window.pathData[i];
-      var pt = pathHash.curve.getPoint(pathHash.position);
-      pathHash.movingGuy.position.set(pt.x, pt.y, pt.z);
-      if (pathHash.importQuestionMark) {
-        pathHash.position = (pathHash.position <= 0) ? 1 : pathHash.position -= pathHash.speed;
-      } else {
-        pathHash.position = (pathHash.position >= 1) ? 0 : pathHash.position += pathHash.speed;
-      }
 
+    // loop over paths
+    for(var j = 0; j < window.pathData.length; j++) {
+      // get the hash of data for this path
+      var pathHash = window.pathData[j];
+
+      // loop over moving guys
+      for (var i = 0; i < pathHash.movingGuys.length; i++)
+      {
+        // get the hash of data for this moving guy
+        var movingGuyHash = pathHash.movingGuys[i];
+
+        if (movingGuyHash.importQuestionMark) {
+          // current ACTUAL position, in 3D vector (x,y,z)
+          var oldPoint = movingGuyHash.movingGuy.position;
+          // note that movingGuyHash.position is NOT a 3D vector, it is the 0-1 floating point number that indicates
+          // "position" along the curve
+          movingGuyHash.position = (movingGuyHash.position <= 0) ? 1 : movingGuyHash.position -= movingGuyHash.speed;
+          // new position, in 3D vector (x,y,z) calculated from the curve
+          var newPoint = pathHash.curve.getPoint(movingGuyHash.position);
+          // set angle of the moving guy correctly
+          movingGuyHash.movingGuy.lookAt( newPoint );
+          // then move arrow to new position
+          movingGuyHash.movingGuy.position.set(newPoint.x, newPoint.y, newPoint.z);
+        } else {
+          // same code for export case
+          var oldPoint = movingGuyHash.movingGuy.position;
+          // only vvv this line vvv is different, so i guess should refactor somehow
+          movingGuyHash.position = (movingGuyHash.position >= 1) ? 0 : movingGuyHash.position += movingGuyHash.speed;
+          var newPoint = pathHash.curve.getPoint(movingGuyHash.position);
+          movingGuyHash.movingGuy.lookAt( newPoint );
+          movingGuyHash.movingGuy.position.set(newPoint.x, newPoint.y, newPoint.z);
+          if (j == 0) console.log("position: " + movingGuyHash.position);
+        }
+      }
 
     }
 
@@ -232,24 +269,36 @@ function animate() {
   if ( intersects && intersects.length > 0 ) {
 
     if ( currentIntersected) {
-      currentIntersected.material.linewidth = 1;
+      currentIntersected.material.linewidth = window.lineUnselectedThickness;
     }
     currentIntersected = intersects[ 0 ].object;
-    currentIntersected.material.linewidth = 5;
     
     d3.select("#curve_info").html(currentIntersected.uuid);
+
+    currentIntersected.material.linewidth = window.lineSelectedThickness;
+
   } 
   else {
 
     if ( currentIntersected !== undefined ) {
-      console.log(currentIntersected);
-      currentIntersected.material.linewidth = 1;
+      // console.log(currentIntersected);
+      currentIntersected.material.linewidth = window.lineUnselectedThickness;
 
     }
   }
-
-        renderer.render(scene, camera);
+    renderer.render(scene, camera);
   }
 
+animate();
 
-      animate();
+var panels = document.getElementsByClassName('panel');
+for(var i = 0; i < panels.length; i++){
+  panels[i].addEventListener('mouseenter', function(){
+    controls.enableZoom = false;
+    controls.enableRotate = false;
+  });
+  panels[i].addEventListener('mouseleave', function(){
+    controls.enableZoom = true;
+    controls.enableRotate = true;
+  });
+};
