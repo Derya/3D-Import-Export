@@ -27,19 +27,17 @@ function getData(country, format, product, fn){
   });
 }
 
-function calcColor(minHue, maxHue, val)
-{
+function calcColor(minHue, maxHue, val) {
   var min = 0; var max = 100;
     // var minHue = 140; var maxHue = 0;
     var curPercent = (val - min) / (max-min);
     var colString = "hsl(" + Math.floor(((curPercent * (maxHue-minHue) ) + minHue)) + ",82%,59%)";
 
     return "#" + tinycolor(colString).toHex();
-  }
+}
 
 // import? is boolean, true for import false for export
-function getHexCode(tradePercent, importQuestionMark)
-{
+function getHexCode(tradePercent, importQuestionMark) {
   if (importQuestionMark) 
     return calcColor(0, 80, tradePercent);
   else
@@ -55,7 +53,6 @@ function drawData(country, format, product, countryArr, curves){
   if (!country) return;
 
   getData(country, format, product, function(data){
-    showData(data, countryArr);
 
     var maxVal = -1; var minVal = Infinity;
 
@@ -134,12 +131,13 @@ function drawData(country, format, product, countryArr, curves){
 
     });
 
-  })
+    showData(data, countryArr);
+  });
 }
 
 function showData(data, countryArr) {
 
-  var countryName;
+  var countryName, tradeVal, tradePercent, tradeColor;
   countryName = getCountryByLongCode(window.params.country, countryArr).id || '';
   $('#current-country').text(countryName);
 
@@ -168,14 +166,28 @@ function showData(data, countryArr) {
       return;
     }
     if (ele.import_val) {
+      tradeVal = ele.import_val;
+      tradeVal = Math.log(tradeVal);
+      tradePercent = 100 * (tradeVal - window.displayMin) / (window.displayMax - window.displayMin);
+      if (tradePercent > 100) tradePercent = 100;
+      tradeColor = getHexCode(tradePercent, true);
       var tr = $('<tr>');
+      if (tradeVal > window.displayMin)
+        tr.css('background', `${tradeColor}`);
       $('<td>').text(countryName).appendTo(tr);
       $('<td>').text('import').appendTo(tr);
       $('<td>').text(`$${ele.import_val}`).appendTo(tr);
       $('#data-table').append(tr);
     }
     if (ele.export_val) {
+      tradeVal = ele.export_val;
+      tradeVal = Math.log(tradeVal);
+      tradePercent = 100 * (tradeVal - window.displayMin) / (window.displayMax - window.displayMin);
+      if (tradePercent > 100) tradePercent = 100;
+      tradeColor = getHexCode(tradePercent, false);
       var tr = $('<tr>');
+      if (tradeVal > window.displayMin)
+        tr.css('background', `${tradeColor}`);
       $('<td>').text(countryName).appendTo(tr);
       $('<td>').text('export').appendTo(tr);
       $('<td>').text(`$${ele.export_val}`).appendTo(tr);
