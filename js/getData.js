@@ -4,6 +4,8 @@ import { arcpath } from './arc';
 
 window.percentThreshold = 0;
 
+var noDataMessage = 'Data of this country is not available.';
+
 function getCountryByFullName(query, arr) {
   return arr.find(function(q) {return q.id == query});
 }
@@ -144,6 +146,13 @@ function showData(data, countryArr) {
   $('#current-country').text(countryName);
 
   $('#data-table').find('tr').remove();
+  $('#info-panel').find('.no-data-message').remove();
+
+  if (data.length == 0) {
+    $('<h4>').text(noDataMessage).css('color', 'salmon').addClass('no-data-message').appendTo($('#info-panel'));
+    return;
+  }
+
   var header = $('<tr>');
   $('<th>').text('To/From').appendTo(header);
   $('<th>').text('Type').appendTo(header);

@@ -19,6 +19,8 @@ body, html {
   left: 25px;
   top: 25px;
   z-index: 1;
+
+  display: none;
 }
 
 #msg {
@@ -56,6 +58,8 @@ body, html {
   padding: 1em;
   bottom: 20px;
   background: black;
+
+  display: none;
 }
 
 .panel .button {

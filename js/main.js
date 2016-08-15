@@ -22,13 +22,15 @@ import * as orbitControls from 'OrbitControls';
 import d3 from 'd3';
 import { getData, drawData } from './getData';
 
+function initialize(){
+  $('.loading-container').hide();
+  $('.panel').fadeIn('fast');
+  $('#info').fadeIn('fast');
+}
 
 d3.json('data/world.json', function (err, data) {
-
-  d3.select("#loading").transition().duration(500).style("opacity", 0).remove();
-
+  initialize();
   var currentCountry, selectedCountry, overlay;
-
   var segments = 155; // number of vertices. Higher = better mouse accuracy
 
   // Setup cache for country textures
@@ -157,12 +159,6 @@ d3.json('data/world.json', function (err, data) {
     if (countryLongCode) {
       window.params.country = countryLongCode;
       magicRedraw();
-      // root.remove(curves);
-      // curves = new THREE.Object3D();
-
-      // drawData(window.params.country, window.params.format, window.params.sitc_id, countryArr, curves);      
-
-      // root.add(curves);
     }
   }
 
@@ -255,7 +251,7 @@ function animate() {
           var newPoint = pathHash.curve.getPoint(movingGuyHash.position);
           movingGuyHash.movingGuy.lookAt( newPoint );
           movingGuyHash.movingGuy.position.set(newPoint.x, newPoint.y, newPoint.z);
-          if (j == 0) console.log("position: " + movingGuyHash.position);
+          // if (j == 0) console.log("position: " + movingGuyHash.position);
         }
       }
 
