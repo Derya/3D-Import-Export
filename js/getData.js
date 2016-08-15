@@ -95,7 +95,7 @@ function drawData(country, format, product, countryArr, curves){
           destCountry = getCountryByLongCode(trade.dest_id, countryArr);
           try {
             // definetely import
-            arcpath(originCountry, destCountry, colorDraw, true, function(err, objects) {
+            arcpath(originCountry, destCountry, colorDraw, true, trade.import_val, function(err, objects) {
               for (var i = 0; i < objects.length; i++) curves.add(objects[i]);
             });
           }
@@ -123,7 +123,7 @@ function drawData(country, format, product, countryArr, curves){
            
           try {
             // definetely export
-            arcpath(originCountry, destCountry, colorDraw, false, function(err, objects) {
+            arcpath(originCountry, destCountry, colorDraw, false, trade.export_val, function(err, objects) {
               for (var i = 0; i < objects.length; i++) curves.add(objects[i]);
 
             });

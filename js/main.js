@@ -268,6 +268,14 @@ function animate() {
   raycaster.setFromCamera( mouse, camera );
   window.addEventListener( 'mousemove', onMouseMove, false );
 
+  var all_curves_uuid;
+  if (window.pathData && window.pathData.length > 0){
+    all_curves_uuid = [];
+    for(var k=0; k < window.pathData.length; k++){
+      all_curves_uuid.push(window.pathData[k].curveObject.uuid);
+    }
+
+  }
 
   if (curves){
     intersects = raycaster.intersectObjects( curves.children , true);
@@ -280,28 +288,31 @@ function animate() {
     }
     currentIntersected = intersects[0].object;
     currentIntersected.material.linewidth = window.lineSelectedThickness;
-    var index = $.inArray( currentIntersected, curves.children);
-   
-    // var index = currentIntersected.id;
-    var info = window.pathData[index];
-    debugger;
-    console.log(index);
 
+    var index = $.inArray( currentIntersected.uuid, all_curves_uuid);
+
+    var info = window.pathData[index];
     var originInfo = info.origin.id;
     var destInfo = info.destination.id;
-  
-    $("#curve_info").html(originInfo + destInfo);
+    if(info.importQuestionMark){
+      var importInfo = "import";
+    }
+    else {
+      var importInfo = "export";
+    }
+    
+    var valueInfo = info.value;
+
+    $("#curve_info").html(originInfo + " " + destInfo + " "+ importInfo + " $" + valueInfo);
   } 
   else {
 
     if ( currentIntersected !== undefined ) {
-      // console.log(currentIntersected);
       currentIntersected.material.linewidth = window.lineUnselectedThickness;
-      intersects = [];
     }
   }
-    renderer.render(scene, camera);
-  }
+  renderer.render(scene, camera);
+}
 
 animate();
 

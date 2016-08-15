@@ -14,7 +14,7 @@ function findVector(latitude, longitude){
   return new THREE.Vector3(x, y, z);;
 }
 
-function arcpath(originCountry, destCountry, colorToDraw, importQuestionMark, callback)
+function arcpath(originCountry, destCountry, colorToDraw, importQuestionMark, value, callback)
 {
   const importExportSpacing =0.5;
   var fromLatitude = originCountry.lat;
@@ -138,10 +138,13 @@ function arcpath(originCountry, destCountry, colorToDraw, importQuestionMark, ca
   window.pathData.push({
     // threeJS curve object
     curve: curve,
+    curveObject: curveObject,
     // array of moving guy objects
     movingGuys: movingGuys,
     origin: originCountry,
-    destination: destCountry
+    destination: destCountry,
+    importQuestionMark: importQuestionMark,
+    value: value
   });
 
   if ( typeof callback == 'function'){
