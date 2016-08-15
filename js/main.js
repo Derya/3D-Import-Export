@@ -197,7 +197,7 @@ function onMouseMove(event){
 }
 
 var raycaster = new THREE.Raycaster();
-raycaster.linePrecision = 3;
+raycaster.linePrecision = 1;
 var intersects;
 var currentIntersected;
 
@@ -231,12 +231,13 @@ function animate() {
 
   if ( intersects && intersects.length > 0 ) {
 
-
     if ( currentIntersected) {
       currentIntersected.material.linewidth = 1;
     }
     currentIntersected = intersects[ 0 ].object;
     currentIntersected.material.linewidth = 5;
+    
+    d3.select("#curve_info").html(currentIntersected.uuid);
   } 
   else {
 
