@@ -5,14 +5,18 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
     <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" href="css/loading.css">
   </head>
   <body>
     <button id="magic" style="display:none;">magic</button>
     <div id="info">
-      <h3>This is a globe!</h3>
       <div id="msg">Mouseover a country...</div>
     </div>
-    <div id="loading">Loading...</div>
+<!--     <div id="loading">Loading...</div> -->
+    <div class="loading-container">
+        <div class="loading"></div>
+        <div id="loading-text">loading</div>
+    </div>
     <div id="control-panel" class="panel">
       <div class="form-control">
         <button class="button left">Export</button>
