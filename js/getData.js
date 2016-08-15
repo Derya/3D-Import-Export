@@ -76,7 +76,7 @@ function drawData(country, format, product, countryArr, curves){
 
     data.forEach(function(trade){
       var importVal, exportVal, colorDraw, originCountry, destCountry, tradePercent;
-      const importExportSpacing = 0.5;
+      
 
       // draw import if it exists
       if (trade.import_val)
@@ -95,7 +95,7 @@ function drawData(country, format, product, countryArr, curves){
           destCountry = getCountryByLongCode(trade.dest_id, countryArr);
           try {
             // definetely import
-            arcpath(originCountry.lat, originCountry.long, destCountry.lat - importExportSpacing, destCountry.long - importExportSpacing, colorDraw, true, function(err, objects) {
+            arcpath(originCountry, destCountry, colorDraw, true, function(err, objects) {
               for (var i = 0; i < objects.length; i++) curves.add(objects[i]);
             });
           }
@@ -120,10 +120,12 @@ function drawData(country, format, product, countryArr, curves){
           // console.log("tradeVal = " + tradeVal + " % = " + tradePercent);
           originCountry = getCountryByLongCode(country, countryArr);
           destCountry = getCountryByLongCode(trade.dest_id, countryArr);
+           
           try {
             // definetely export
-            arcpath(originCountry.lat, originCountry.long, destCountry.lat + importExportSpacing, destCountry.long + importExportSpacing, colorDraw, false, function(err, objects) {
+            arcpath(originCountry, destCountry, colorDraw, false, function(err, objects) {
               for (var i = 0; i < objects.length; i++) curves.add(objects[i]);
+
             });
           }
           catch(err) {

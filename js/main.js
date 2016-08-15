@@ -258,10 +258,11 @@ function animate() {
 
   }
 
+
   //highlights curves when mouseover
   raycaster.setFromCamera( mouse, camera );
   window.addEventListener( 'mousemove', onMouseMove, false );
-
+  
   if (curves){
     intersects = raycaster.intersectObjects( curves.children , true);
   }
@@ -272,9 +273,8 @@ function animate() {
       currentIntersected.material.linewidth = window.lineUnselectedThickness;
     }
     currentIntersected = intersects[ 0 ].object;
-    
-    d3.select("#curve_info").html(currentIntersected.uuid);
 
+    d3.select("#curve_info").html(currentIntersected.uuid);
     currentIntersected.material.linewidth = window.lineSelectedThickness;
 
   } 

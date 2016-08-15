@@ -14,8 +14,23 @@ function findVector(latitude, longitude){
   return new THREE.Vector3(x, y, z);;
 }
 
-function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, colorToDraw, importQuestionMark, callback)
+function arcpath(originCountry, destCountry, colorToDraw, importQuestionMark, callback)
 {
+  const importExportSpacing =0.5;
+  var fromLatitude = originCountry.lat;
+  var fromLongitude = originCountry.long;
+  var toLatitude;
+  var toLongitude;
+
+  if(importQuestionMark){
+    toLatitude = destCountry.lat - importExportSpacing;
+    toLongitude = destCountry.long - importExportSpacing;
+  }
+  else{
+    toLatitude = destCountry.lat + importExportSpacing;
+    toLongitude = destCountry.long + importExportSpacing;
+  }
+
   // get from and to locations in the form of threeJS vectors
   var vF = findVector(fromLatitude, fromLongitude);
   var vT = findVector(toLatitude, toLongitude);
@@ -124,7 +139,9 @@ function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, colorToDr
     // threeJS curve object
     curve: curve,
     // array of moving guy objects
-    movingGuys: movingGuys
+    movingGuys: movingGuys,
+    origin: originCountry,
+    destination: destCountry
   });
 
   if ( typeof callback == 'function'){
