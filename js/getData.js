@@ -2,8 +2,6 @@
 import d3 from 'd3';
 import { arcpath } from './arc';
 
-window.percentThreshold = 0;
-
 var noDataMessage = 'Data of this country is not available.';
 
 function getCountryByFullName(query, arr) {
@@ -54,9 +52,19 @@ function drawData(country, format, product, countryArr, curves){
 
   if (!country) return;
 
+
   getData(country, format, product, function(data){
 
-    var maxVal = -1; var minVal = Infinity;
+    // our data array has an entry with destination "xxxx" that isn't supposed to represent an actual
+    // trade to a country, but rather just has the total export or total import for this country
+    // remove it:
+    data = data.filter(function(obj) {
+      return obj.dest_id !== 'xxxxh';
+    });
+
+    // we are going to find the minimum and maximum values for this dataset
+    var maxVal = -1;
+    var minVal = Infinity;
 
     for (var i = 0; i < data.length; i++)
     {
@@ -69,13 +77,14 @@ function drawData(country, format, product, countryArr, curves){
       if (data[i].export_val && data[i].export_val < minVal)
         minVal = data[i].export_val;
     }
+
     minVal += 0.03 * maxVal;
+
     window.displayMax = Math.log(maxVal);
     window.displayMin = Math.log(minVal);
 
     data.forEach(function(trade){
       var importVal, exportVal, colorDraw, originCountry, destCountry, tradePercent;
-      
 
       // draw import if it exists
       if (trade.import_val)

@@ -17,6 +17,7 @@ function findVector(latitude, longitude){
 function arcpath(originCountry, destCountry, colorToDraw, importQuestionMark, value, callback)
 {
   const importExportSpacing =0.5;
+
   var fromLatitude = originCountry.lat;
   var fromLongitude = originCountry.long;
   var toLatitude;
