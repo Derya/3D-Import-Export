@@ -72,7 +72,7 @@ function arcpath(originCountry, destCountry, colorToDraw, importQuestionMark, va
 
   // number of moving clusters, and the number of arrows in each cluster
   var numMovingGuyClusters = Math.floor(map(curve.getLength(), 50, 600, 1, 15));
-  console.log(curve.getLength());
+
   var clusterDensityMovingGuys = 2; //Math.floor(map(tradePercent, 0, 100, 1, 4));
   // this is the spacing between arrows we want, in length units (not in %) 
   const clusterSpacingReal = 3;
