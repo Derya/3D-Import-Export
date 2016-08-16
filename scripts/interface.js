@@ -13,6 +13,21 @@ $.getJSON('http://josh-han.com:10002/sitcnames').done(function(data){
 $('.button').click(function(){
     $('.button').removeClass('active');
     $(this).addClass('active');
+
+    $('.table-container').addClass('half-height').show();
+
+    switch($(this).text()) {
+        case 'Export':
+            $('#import-container').hide();
+            $('#export-container').removeClass('half-height');
+            break;
+        case 'Import':
+            $('#export-container').hide();
+            $('#import-container').removeClass('half-height');
+            break;
+        default:
+            break;
+    }
     window.params.format = $(this).text().toLowerCase();
     redraw();
 });

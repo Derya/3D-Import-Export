@@ -141,65 +141,81 @@ function showData(data, countryArr) {
   countryName = getCountryByLongCode(window.params.country, countryArr).id || '';
   $('#current-country').text(countryName);
 
-  $('#data-table').find('tr').remove();
+  $('.data-table').find('tr').remove();
   $('#info-panel').find('.no-data-message').remove();
 
-  if (data.length == 0) {
-    var noData = $('<h4>').text('Data of this country is not available.').css('color', 'salmon').addClass('no-data-message').appendTo($('#info-panel'));
-    return;
-  }
-
-  var header = $('<tr>');
-  $('<th>').text('To/From').appendTo(header);
-  $('<th>').text('Type').appendTo(header);
-  $('<th>').text('Value').appendTo(header);
-  $('#data-table').append(header);
-
-  function totalVal(a) {
-    var importVal = a.import_val || 0;
-    var exportVal = a.export_val || 0;
-    return importVal + exportVal;
-  }
-
-  var sortedData = data.sort(function(a, b){
-    return totalVal(b) - totalVal(a);
+  var sortedImport = data.filter(function(ele){
+    return ele.import_val;
+  }).sort(function(a, b){
+    return b.import_val - a.import_val;
   })
 
-  sortedData.forEach(function(ele){
+  var sortedExport = data.filter(function(ele){
+    return ele.export_val;
+  }).sort(function(a, b){
+    return b.export_val - a.export_val;
+  })
+
+  if (sortedImport.length == 0) {
+    var noData = $('<h4>').text('Data of this country is not available.').css('color', 'salmon').addClass('no-data-message').appendTo($('#import-table'));
+  } else {
+    var header = $('<tr>');
+    $('<th>').text('From').appendTo(header);
+    $('<th>').text('Type').appendTo(header);
+    $('<th>').text('Value').appendTo(header);
+    $('#import-table').append(header);
+  }
+
+  if (sortedExport.length == 0) {
+    var noData = $('<h4>').text('Data of this country is not available.').css('color', 'salmon').addClass('no-data-message').appendTo($('#export-table'));
+  } else {
+    var header = $('<tr>');
+    $('<th>').text('To').appendTo(header);
+    $('<th>').text('Type').appendTo(header);
+    $('<th>').text('Value').appendTo(header);
+    $('#export-table').append(header);
+  }
+
+  sortedImport.forEach(function(ele){
     var thisCountry = getCountryByLongCode(ele.dest_id, countryArr);
     if (thisCountry) {
       countryName = thisCountry.id;
     } else {
       return;
     }
-    if (ele.import_val) {
-      tradeVal = ele.import_val;
-      tradeVal = Math.log(tradeVal);
-      tradePercent = 100 * (tradeVal - window.displayMin) / (window.displayMax - window.displayMin);
-      if (tradePercent > 100) tradePercent = 100;
-      tradeColor = getHexCode(tradePercent, true);
-      var tr = $('<tr>');
-      if (tradeVal > window.displayMin)
-        tr.css('background', `${tradeColor}`);
-      $('<td>').text(countryName).appendTo(tr);
-      $('<td>').text('import').appendTo(tr);
-      $('<td>').text(`$${ele.import_val}`).appendTo(tr);
-      $('#data-table').append(tr);
+    tradeVal = ele.import_val;
+    tradeVal = Math.log(tradeVal);
+    tradePercent = 100 * (tradeVal - window.displayMin) / (window.displayMax - window.displayMin);
+    if (tradePercent > 100) tradePercent = 100;
+    tradeColor = getHexCode(tradePercent, true);
+    var tr = $('<tr>');
+    if (tradeVal > window.displayMin)
+      tr.css('background', `${tradeColor}`);
+    $('<td>').text(countryName).appendTo(tr);
+    $('<td>').text('import').appendTo(tr);
+    $('<td>').text(`$${ele.import_val}`).appendTo(tr);
+    $('#import-table').append(tr);
+  });
+
+  sortedExport.forEach(function(ele){
+    var thisCountry = getCountryByLongCode(ele.dest_id, countryArr);
+    if (thisCountry) {
+      countryName = thisCountry.id;
+    } else {
+      return;
     }
-    if (ele.export_val) {
-      tradeVal = ele.export_val;
-      tradeVal = Math.log(tradeVal);
-      tradePercent = 100 * (tradeVal - window.displayMin) / (window.displayMax - window.displayMin);
-      if (tradePercent > 100) tradePercent = 100;
-      tradeColor = getHexCode(tradePercent, false);
-      var tr = $('<tr>');
-      if (tradeVal > window.displayMin)
-        tr.css('background', `${tradeColor}`);
-      $('<td>').text(countryName).appendTo(tr);
-      $('<td>').text('export').appendTo(tr);
-      $('<td>').text(`$${ele.export_val}`).appendTo(tr);
-      $('#data-table').append(tr);
-    }
+    tradeVal = ele.export_val;
+    tradeVal = Math.log(tradeVal);
+    tradePercent = 100 * (tradeVal - window.displayMin) / (window.displayMax - window.displayMin);
+    if (tradePercent > 100) tradePercent = 100;
+    tradeColor = getHexCode(tradePercent, false);
+    var tr = $('<tr>');
+    if (tradeVal > window.displayMin)
+      tr.css('background', `${tradeColor}`);
+    $('<td>').text(countryName).appendTo(tr);
+    $('<td>').text('export').appendTo(tr);
+    $('<td>').text(`$${ele.export_val}`).appendTo(tr);
+    $('#export-table').append(tr);
   });
  
 }

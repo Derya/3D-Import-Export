@@ -31,13 +31,16 @@
     </div>
     <div id="info-panel" class="panel">
       <h4>Country: <span id="current-country"><span></h4>
-      <table id="data-table">
-        <tr>
-          <th>To/From</th>
-          <th>Type</th>
-          <th>Value</th>
-        </tr>
-      </table>
+      <div id="import-container" class="table-container  half-height">
+        <h4>Imports</h4>
+        <table id="import-table" class="data-table">
+        </table>     
+      </div>
+      <div id="export-container" class="table-container  half-height">
+        <h4>Exports</h4>
+        <table id="export-table" class="data-table">
+        </table>
+      </div>
     </div>
 
     <script src="jquery-3.1.0.js"></script>

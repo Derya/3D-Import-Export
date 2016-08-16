@@ -103,11 +103,24 @@ body, html {
   text-align: left;
   top: 20px;
   right: 20px;
-  overflow: auto;
+  /*overflow: auto;*/
 }
 
-#data-table {
+#info-panel h4 {
+  margin: 0.3em;
+}
+
+.data-table {
   width: 100%;
+}
+
+.table-container {
+  overflow: scroll;
+  max-height: 90%;
+}
+
+.half-height {
+  height: 45%;
 }
 
 #search-result {
