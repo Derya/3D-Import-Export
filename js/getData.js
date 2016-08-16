@@ -176,7 +176,6 @@ function showData(data, countryArr) {
   } else {
     var header = $('<tr>');
     $('<th>').text('From').appendTo(header);
-    $('<th>').text('Type').appendTo(header);
     $('<th>').text('Value').appendTo(header);
     $('#import-table').append(header);
   }
@@ -186,7 +185,6 @@ function showData(data, countryArr) {
   } else {
     var header = $('<tr>');
     $('<th>').text('To').appendTo(header);
-    $('<th>').text('Type').appendTo(header);
     $('<th>').text('Value').appendTo(header);
     $('#export-table').append(header);
   }
@@ -207,7 +205,6 @@ function showData(data, countryArr) {
     if (tradeVal > window.displayMin)
       tr.css('background', `${tradeColor}`);
     $('<td>').text(countryName).appendTo(tr);
-    $('<td>').text('import').appendTo(tr);
     $('<td>').text(`$${ele.import_val}`).appendTo(tr);
     $('#import-table').append(tr);
   });
@@ -228,7 +225,6 @@ function showData(data, countryArr) {
     if (tradeVal > window.displayMin)
       tr.css('background', `${tradeColor}`);
     $('<td>').text(countryName).appendTo(tr);
-    $('<td>').text('export').appendTo(tr);
     $('<td>').text(`$${ele.export_val}`).appendTo(tr);
     $('#export-table').append(tr);
   });
