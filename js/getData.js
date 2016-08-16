@@ -153,7 +153,7 @@ function drawData(country, format, product, countryArr, curves){
 function showData(data, countryArr) {
 
   var countryName, tradeVal, tradePercent, tradeColor;
-  countryName = getCountryByLongCode(window.params.country, countryArr).id || '';
+  countryName = getCountryByLongCode(window.params.country, countryArr).actual_full_name || '';
   $('#current-country').text(countryName);
 
   $('.data-table').find('tr').remove();
