@@ -36,9 +36,9 @@ function calcColor(minHue, maxHue, val) {
 // import? is boolean, true for import false for export
 function getHexCode(tradePercent, importQuestionMark) {
   if (importQuestionMark) 
-    return calcColor(0, 80, tradePercent);
+    return calcColor(0, 52, tradePercent);
   else
-    return calcColor(150, 250, tradePercent);
+    return calcColor(180, 270, tradePercent);
 }
 
 // draw either import or export data or both evidently, depending on input data
