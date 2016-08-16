@@ -15,14 +15,17 @@ $('.button').click(function(){
     $(this).addClass('active');
 
     $('.table-container').addClass('half-height').show();
+    $('.table-container-title').show();
 
     switch($(this).text()) {
         case 'Export':
             $('#import-container').hide();
+            $('#import-title').hide();
             $('#export-container').removeClass('half-height');
             break;
         case 'Import':
             $('#export-container').hide();
+            $('#export-title').hide();
             $('#import-container').removeClass('half-height');
             break;
         default:

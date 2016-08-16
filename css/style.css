@@ -121,12 +121,12 @@ body, html {
 
 .table-container {
   overflow: scroll;
-  max-height: 90%;
-  margin-top: 3%;
+  max-height: 85%;
+  margin-bottom: 3%;
 }
 
 .half-height {
-  height: 45%;
+  height: 41%;
 }
 
 #search-result {
