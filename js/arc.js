@@ -14,9 +14,9 @@ function findVector(latitude, longitude){
   return new THREE.Vector3(x, y, z);;
 }
 
-function arcpath(originCountry, destCountry, colorToDraw, importQuestionMark, value, callback)
+function arcpath(originCountry, destCountry, colorToDraw, importQuestionMark, value, tradePercent, callback)
 {
-  const importExportSpacing =0.5;
+  const importExportSpacing = 0.5;
 
   var fromLatitude = originCountry.lat;
   var fromLongitude = originCountry.long;
@@ -70,17 +70,16 @@ function arcpath(originCountry, destCountry, colorToDraw, importQuestionMark, va
   // this is the threeJS object that is representing path itself
   var curveObject = new THREE.Line( geometry2, material2 );
 
-  // hard coding these in here, later we can use these to indicate amount of trade going over this route
-  // we could have more groups of arrows, or we could just have more arrows per group as potential ways to indicate
-  // how much trade is going
-  var numMovingGuyClusters = 2;
-  var clusterDensityMovingGuys = 2;
-  // 0.015 looks like it works well. the problem is that this is proportional to the arc length, so it is not
-  // consistent between arcs. this is easy to fix by calculating this based on the arc length, so i'll implement
-  // that later
-  const clusterSpacing = 0.015;
+  // number of moving clusters, and the number of arrows in each cluster
+  var numMovingGuyClusters = Math.floor(map(curve.getLength(), 50, 600, 1, 15));
+  console.log(curve.getLength());
+  var clusterDensityMovingGuys = 2; //Math.floor(map(tradePercent, 0, 100, 1, 4));
+  // this is the spacing between arrows we want, in length units (not in %) 
+  const clusterSpacingReal = 3;
+  // calculate this spacing in %
+  const clusterSpacing = clusterSpacingReal / curve.getLength();
   // arrow size, 1.5 looks good to me
-  const arrowSize = 1.5;
+  const arrowSize = 1;
 
   // this is the array of hashes holding all the moving object data
   var movingGuys = [];
@@ -91,9 +90,10 @@ function arcpath(originCountry, destCountry, colorToDraw, importQuestionMark, va
   // start with just the curve object, add the moving guys in the loop below
   var returnObjArr = [curveObject];
 
-  // hard coding in speed for now. later we will want to calculate this based on arc length so that nearby countries
-  // don't have extremely slow travelling arrows
-  var speed = 0.002;
+  // speed we want, in length units (not in %)
+  const speedReal = map(tradePercent, 0, 100, 0.1, 1);
+  // calculate speed in %
+  const speed = speedReal / curve.getLength();
 
   // start somewhere random
   var position = Math.random();
