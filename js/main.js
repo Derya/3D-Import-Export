@@ -8,6 +8,15 @@ window.GLOBE_DIAMETER = window.GLOBE_RADIUS * 2;
 // thicknesses of arc lines
 window.lineUnselectedThickness = 2;
 window.lineSelectedThickness = 5;
+// geometry for selected and unselected moving guys
+window.movingGuyUnselectedGeom = new THREE.Geometry();
+window.movingGuyUnselectedGeom.vertices.push(new THREE.Vector3(0, -1.5, -1.5));
+window.movingGuyUnselectedGeom.vertices.push(new THREE.Vector3(0, 0, 1.5));
+window.movingGuyUnselectedGeom.vertices.push(new THREE.Vector3(0, 1.5, -1.5));
+window.movingGuySelectedGeom = new THREE.Geometry();
+window.movingGuySelectedGeom.vertices.push(new THREE.Vector3(0, -30, -30));
+window.movingGuySelectedGeom.vertices.push(new THREE.Vector3(0, 0, 30));
+window.movingGuySelectedGeom.vertices.push(new THREE.Vector3(0, 30, -30));
 
 const OrbitControls = orbitControls.default(THREE);
 var curves;
@@ -263,57 +272,78 @@ function animate() {
 
   }
 
-  //highlights curves when mouseover
-  raycaster.setFromCamera( mouse, camera );
-
-  if (curves){
+  // if any data is being displayed
+  if (curves)
+  {
+    // figure out what is being hovered over
+    raycaster.setFromCamera( mouse, camera );
+    // intersects will be array of curve and moving guy objects that the mouse is hovering over
     intersects = raycaster.intersectObjects( curves.children , true);
-  }
-  if ( intersects && intersects.length > 0 ) {
 
-    if ( currentIntersected) {
-      currentIntersected.material.linewidth = window.lineUnselectedThickness;
-    }
+    // if there are any such we are hovering over
+    if ( intersects && intersects.length > 0 ) {
 
-    // for (var i = 0; i < intersects.length; i++)
-    // {
-    //   if (intersects[i].object.isCurve)
-    //   {
-    //     currentIntersected = intersects[i].object;
-    //     break;
-    //   }
-    // }
-    currentIntersected = intersects[0].object;
-
-    currentIntersected.material.linewidth = window.lineSelectedThickness;
-
-    var index = $.inArray(currentIntersected.uuid, window.all_curves_uuid);
-
-    var info = window.pathData[index];
-
-    if (info) {
-      var originInfo = info.origin.id;
-      var destInfo = info.destination.id;
-      if(info.importQuestionMark){
-        var importInfo = "import";
+      // deselect previous curve
+      if ( currentIntersected ) {
+        currentIntersected.material.linewidth = window.lineUnselectedThickness;
+        currentIntersected.childrenMovingGuys.forEach(function(movingGuy) {
+          movingGuy.movingGuy.material.linewidth = window.lineUnselectedThickness;
+        });
       }
-      else {
-        var importInfo = "export";
+
+      // var newMovingGuyMaterial = new THREE.LineBasicMaterial( { color: colorToDraw, linewidth: 3 } );
+
+      currentIntersected = undefined;
+
+      // get current intersected curve if there is one
+      for (var i = 0; i < intersects.length; i++)
+      {
+        if (intersects[i].object.isCurve)
+        {
+          currentIntersected = intersects[i].object;
+          break;
+        }
       }
-      
-      var valueInfo = info.value;
 
-      $("#curve_info").html(originInfo + " " + destInfo + " "+ importInfo + " $" + valueInfo);
+      if (currentIntersected) {
+        currentIntersected.material.linewidth = window.lineSelectedThickness;
+        currentIntersected.childrenMovingGuys.forEach(function(movingGuy) {
+          movingGuy.movingGuy.material.linewidth = window.lineSelectedThickness;
+        });
+
+        var index = $.inArray(currentIntersected.uuid, window.all_curves_uuid);
+        var info = window.pathData[index];
+
+        if (info) {
+          var originInfo = info.origin.id;
+          var destInfo = info.destination.id;
+          if(info.importQuestionMark){
+            var importInfo = "import";
+          }
+          else {
+            var importInfo = "export";
+          }
+          
+          var valueInfo = info.value;
+
+          $("#curve_info").html(originInfo + " " + destInfo + " "+ importInfo + " $" + valueInfo);
+        }
+
+      }
+
+    }
+    // else if we are not hovering over any
+    else {
+      // deselect
+      if ( currentIntersected !== undefined ) {
+        currentIntersected.material.linewidth = window.lineUnselectedThickness;
+        currentIntersected.childrenMovingGuys.forEach(function(movingGuy) {
+          movingGuy.movingGuy.material.linewidth = window.lineUnselectedThickness;
+        });
+      }
     }
 
-  } 
-  else {
-    if ( currentIntersected !== undefined ) {
-      currentIntersected.material.linewidth = window.lineUnselectedThickness;
-    }
   }
-
-
 
   renderer.render(scene, camera);
 }

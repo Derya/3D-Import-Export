@@ -81,8 +81,6 @@ function arcpath(originCountry, destCountry, colorToDraw, importQuestionMark, va
   const clusterSpacingReal = 3;
   // calculate this spacing in %
   const clusterSpacing = clusterSpacingReal / curve.getLength();
-  // arrow size, 1.5 looks good to me
-  const arrowSize = 1;
 
   // this is the array of hashes holding all the moving object data
   var movingGuys = [];
@@ -115,12 +113,8 @@ function arcpath(originCountry, destCountry, colorToDraw, importQuestionMark, va
       if (position > 1) position -= 1;
 
       // build the arrow object
-      var newMovingGuyGeom = new THREE.Geometry();
-      newMovingGuyGeom.vertices.push(new THREE.Vector3(0, -arrowSize, -arrowSize));
-      newMovingGuyGeom.vertices.push(new THREE.Vector3(0, 0, arrowSize));
-      newMovingGuyGeom.vertices.push(new THREE.Vector3(0, arrowSize, -arrowSize));
       var newMovingGuyMaterial = new THREE.LineBasicMaterial( { color: colorToDraw, linewidth: 3 } );
-      var newMovingGuy = new THREE.Line(newMovingGuyGeom, newMovingGuyMaterial);
+      var newMovingGuy = new THREE.Line(window.movingGuyUnselectedGeom, newMovingGuyMaterial);
       newMovingGuy.isCurve = false;
       newMovingGuy.parentCurve = curve;
 
@@ -140,8 +134,8 @@ function arcpath(originCountry, destCountry, colorToDraw, importQuestionMark, va
       });
     }
   }
-  curve.isCurve = true;
-  curve.childrenMovingGuys = movingGuys;
+  curveObject.isCurve = true;
+  curveObject.childrenMovingGuys = movingGuys;
 
   // this is the hash of info for this particular path to be stored in the global pathHash array
   window.pathData.push({
