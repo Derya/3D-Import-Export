@@ -152,6 +152,8 @@ d3.json('data/world.json', function (err, data) {
 
     window.pathData = [];
 
+    window.all_curves_uuid = [];
+
     if (country) {
       countryLongCode = getCountryByFullName(country.code, countryArr).longCode;
       selectedCountry = country;
@@ -214,6 +216,7 @@ var raycaster = new THREE.Raycaster();
 raycaster.linePrecision = 1;
 var intersects;
 var currentIntersected;
+window.addEventListener( 'mousemove', onMouseMove, false );
 
 function animate() {
   requestAnimationFrame(animate);
@@ -260,33 +263,31 @@ function animate() {
 
   }
 
-
   //highlights curves when mouseover
   raycaster.setFromCamera( mouse, camera );
-  window.addEventListener( 'mousemove', onMouseMove, false );
-
-  var all_curves_uuid;
-  if (window.pathData && window.pathData.length > 0){
-    all_curves_uuid = [];
-    for(var k=0; k < window.pathData.length; k++){
-      all_curves_uuid.push(window.pathData[k].curveObject.uuid);
-    }
-
-  }
 
   if (curves){
     intersects = raycaster.intersectObjects( curves.children , true);
   }
-
   if ( intersects && intersects.length > 0 ) {
 
     if ( currentIntersected) {
       currentIntersected.material.linewidth = window.lineUnselectedThickness;
     }
+
+    // for (var i = 0; i < intersects.length; i++)
+    // {
+    //   if (intersects[i].object.isCurve)
+    //   {
+    //     currentIntersected = intersects[i].object;
+    //     break;
+    //   }
+    // }
     currentIntersected = intersects[0].object;
+
     currentIntersected.material.linewidth = window.lineSelectedThickness;
 
-    var index = $.inArray(currentIntersected.uuid, all_curves_uuid);
+    var index = $.inArray(currentIntersected.uuid, window.all_curves_uuid);
 
     var info = window.pathData[index];
 
@@ -307,11 +308,13 @@ function animate() {
 
   } 
   else {
-
     if ( currentIntersected !== undefined ) {
       currentIntersected.material.linewidth = window.lineUnselectedThickness;
     }
   }
+
+
+
   renderer.render(scene, camera);
 }
 

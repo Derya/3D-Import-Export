@@ -101,13 +101,12 @@ function arcpath(originCountry, destCountry, colorToDraw, importQuestionMark, va
   // start somewhere random
   var position = Math.random();
 
-  for (var i = 0; i < numMovingGuyClusters; i++)
+  for (var i = 1; i < numMovingGuyClusters; i++)
   {
     // move forward in position to disperse the clusters
     position += 1/numMovingGuyClusters - clusterSpacing;
     // wrap back if necessary
-    if (position > 1) position -= 1;
-
+    if (position >= 1) position -= 1;
     for (var j = 0; j < clusterDensityMovingGuys; j++)
     {
       // move forward by clusterSpacing
@@ -122,6 +121,8 @@ function arcpath(originCountry, destCountry, colorToDraw, importQuestionMark, va
       newMovingGuyGeom.vertices.push(new THREE.Vector3(0, arrowSize, -arrowSize));
       var newMovingGuyMaterial = new THREE.LineBasicMaterial( { color: colorToDraw, linewidth: 3 } );
       var newMovingGuy = new THREE.Line(newMovingGuyGeom, newMovingGuyMaterial);
+      newMovingGuy.isCurve = false;
+      newMovingGuy.parentCurve = curve;
 
       // push to object wrapper array
       returnObjArr.push(newMovingGuy);
@@ -135,10 +136,12 @@ function arcpath(originCountry, destCountry, colorToDraw, importQuestionMark, va
         // speed
         speed: speed,
         // whether it is an import or an export
-        importQuestionMark: importQuestionMark,
+        importQuestionMark: importQuestionMark
       });
     }
   }
+  curve.isCurve = true;
+  curve.childrenMovingGuys = movingGuys;
 
   // this is the hash of info for this particular path to be stored in the global pathHash array
   window.pathData.push({

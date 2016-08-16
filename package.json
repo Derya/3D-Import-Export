@@ -6,7 +6,8 @@
   "dependencies": {
     "d3": "^3.5.5",
     "three": "^0.71.0",
-    "three-orbit-controls": "^72.0.0"
+    "three-orbit-controls": "^72.0.0",
+    "tinycolor2": "^1.4.1"
   },
   "devDependencies": {
     "babel": "^5.4.3",
