@@ -51,7 +51,10 @@ function arcpath(originCountry, destCountry, colorToDraw, importQuestionMark, va
 
   // map the distance to 1.0 --> 1.7
   // we want further countries to have higher arcs
-  var heightConst = map(dist, 0, window.GLOBE_DIAMETER, 11, 17);
+  if (dist < window.GLOBE_DIAMETER * 0.8)
+    var heightConst = map(dist, 0, window.GLOBE_DIAMETER, 13, 15);
+  else
+    var heightConst = map(dist, 0, window.GLOBE_DIAMETER, 13, 18);
   var smoothDist = map( dist, 0, 10, 0, heightConst/dist );
   mid.setLength( window.GLOBE_RADIUS * smoothDist );
   cvT.add(mid);
