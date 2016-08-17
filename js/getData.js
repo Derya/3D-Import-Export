@@ -2,6 +2,7 @@
 import d3 from 'd3';
 import { arcpath } from './arc';
 import tinycolor from 'TinyColor';
+import { beautifulDigits } from './beautifulDigits';
 
 var noDataMessage = 'Data of this country is not available.';
 
@@ -205,7 +206,7 @@ function showData(data, countryArr) {
     if (tradeVal > window.displayMin)
       tr.css('background', `${tradeColor}`);
     $('<td>').text(countryName).appendTo(tr);
-    $('<td>').text(`$${ele.import_val}`).appendTo(tr);
+    $('<td nowrap>').text(`$${beautifulDigits(ele.import_val)}`).appendTo(tr);
     $('#import-table').append(tr);
   });
 
@@ -225,7 +226,8 @@ function showData(data, countryArr) {
     if (tradeVal > window.displayMin)
       tr.css('background', `${tradeColor}`);
     $('<td>').text(countryName).appendTo(tr);
-    $('<td>').text(`$${ele.export_val}`).appendTo(tr);
+    debugger
+    $('<td nowrap>').text(`$${beautifulDigits(ele.export_val)}`).appendTo(tr);
     $('#export-table').append(tr);
   });
  
