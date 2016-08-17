@@ -11,6 +11,18 @@ $.getJSON('http://josh-han.com:10002/sitcnames').done(function(data){
 });
 
 $('.table-container-title').hide();
+$('#slider').slider({
+    range: "min",
+    value: 90,
+    slide: function(event, ui){
+        $('#percentOfCurves').text(100 - ui.value);
+    },
+    change: function(event,ui){
+        console.log('slider keyup');
+        console.log(100 - ui.value);
+    }
+});
+
 
 $('.show').on('click', function(){
     $('#info-panel').toggle();
