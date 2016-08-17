@@ -79,7 +79,7 @@ body, html {
 }
 
 #control-panel {
-  height: 150px;
+  /*height: 200px;*/
   left: 20px;
 }
 
@@ -91,6 +91,14 @@ body, html {
   right: 20px;
   padding-bottom: 0;
   display: none;
+}
+
+#slider {
+  margin: 10px 0 0 0;
+  width: 100%;
+}
+.ui-slider-range { 
+  background: #BDBDBD; 
 }
 
 .show {

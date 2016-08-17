@@ -229,7 +229,6 @@ function showData(data, countryArr) {
     if (tradeVal > window.displayMin)
       tr.css('background', `${tradeColor}`);
     $('<td>').text(countryName).appendTo(tr);
-    debugger
     $('<td nowrap>').text(`$${beautifulDigits(ele.export_val)}`).appendTo(tr);
     $('#export-table').append(tr);
   });
