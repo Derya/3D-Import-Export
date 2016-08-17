@@ -24,7 +24,7 @@ body, html {
 }
 
 #msg {
-  /*font: 40px helvetica, arial;*/
+  font-size: 40px;
 }
 
 #info h3 {
@@ -101,10 +101,28 @@ body, html {
 #info-panel {
   color: white;
   text-align: left;
-  top: 20px;
+  /*top: 20px;*/
+  top: 50px;
   right: 20px;
   /*overflow: auto;*/
   padding-bottom: 0;
+  display: none;
+}
+
+.show {
+  color: white;
+  text-align: left;
+  top: 20px;
+  right: 20px;
+  position:fixed;
+  display: none;
+}
+
+#curve_info{
+  background-color: black;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
 }
 
 #info-panel h4 {
@@ -122,8 +140,8 @@ body, html {
 
 .table-container {
   overflow: scroll;
-  max-height: 85%;
-  margin-bottom: 3%;
+  max-height: 87%;
+  margin-bottom: 10px;
 }
 
 .half-height {
