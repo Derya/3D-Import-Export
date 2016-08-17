@@ -2,7 +2,7 @@ body, html {
   background-color:black;
   /*overflow: hidden;*/
   margin: 0px;
-  font-family: helvetica, arial;
+  font-family: 'Open Sans', sans-serif;
   color: #333;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -24,7 +24,7 @@ body, html {
 }
 
 #msg {
-  font: 40px helvetica, arial;
+  /*font: 40px helvetica, arial;*/
 }
 
 #info h3 {
