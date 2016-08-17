@@ -1,5 +1,5 @@
 body, html {
-  background-color: black;
+  background-color:black;
   /*overflow: hidden;*/
   margin: 0px;
   font-family: helvetica, arial;
@@ -19,6 +19,8 @@ body, html {
   left: 25px;
   top: 25px;
   z-index: 1;
+
+  display: none;
 }
 
 #msg {
@@ -45,4 +47,130 @@ body, html {
   position: absolute;
   bottom: 10px;
   left: 0px;
+}
+
+.panel {
+  text-align: center;
+  position: fixed;
+  width: 300px;
+  border: 2px solid #999;
+  border-radius: 5px;
+  padding: 1em;
+  bottom: 20px;
+  background: black;
+
+  display: none;
+}
+
+.panel .button {
+  background: #999;
+  border-radius: 5px;
+  width: 30%;
+  margin-top: 1em;
+  padding: .5em;
+  font-size: 1.2em;
+  text-align: center;
+  color: white;
+  cursor: pointer;
+}
+
+.panel .button:hover{
+  background: #eee;
+}
+
+.panel .button.active {
+  background: #eee;
+}
+
+.panel .label {
+  margin-top: 1em;
+  color: white;
+}
+
+.panel .product {
+  margin-top: 1em;
+  width: 100%;
+  font-size: 1.2em;
+}
+
+#control-panel {
+  height: 150px;
+  left: 20px;
+}
+
+#info-panel {
+  color: white;
+  text-align: left;
+  top: 20px;
+  right: 20px;
+  /*overflow: auto;*/
+  padding-bottom: 0;
+}
+
+#info-panel h4 {
+  margin: 0.3em;
+}
+
+#info-panel > h4 {
+  height: 4%;
+  margin: 0;
+}
+
+.data-table {
+  width: 100%;
+}
+
+.table-container {
+  overflow: scroll;
+  max-height: 85%;
+  margin-bottom: 3%;
+}
+
+.half-height {
+  height: 41%;
+}
+
+#search-result {
+  padding: 0;
+  max-height: 400px;
+  overflow: auto;
+  width: 90%;
+  position: absolute;
+  bottom: 2em;
+  background: white;
+  list-style-type: none;
+  z-index: 1;
+}
+
+#search-result li {
+  padding: 1em;
+  display: block;
+  cursor: pointer;
+}
+
+#search-result li:hover {
+  background: #bbb;
+}
+
+.left {
+  float: left;
+}
+
+.right {
+  float: right;
+}
+
+.keywords {
+  font-size: .8em;
+  color: #999;
+}
+
+.tooltip span{
+  display: none;
+}
+
+.tooltip:hover span{
+  display: block;
+  position: fixed;
+  overflow:hidden;
 }

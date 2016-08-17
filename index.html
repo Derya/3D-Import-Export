@@ -5,14 +5,52 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
     <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" href="css/loading.css">
   </head>
   <body>
-      <div id="info">
-      <h3>This is a globe!</h3>
+    <button id="magic" style="display:none;">magic</button>
+    <div id="info">
       <div id="msg">Mouseover a country...</div>
+      <p id="curve_info">hello</p>
     </div>
-    <div id="loading">Loading...</div>
 
+<!--     <div id="loading">Loading...</div> -->
+    <div class="loading-container">
+        <div class="loading"></div>
+        <div id="loading-text">loading</div>
+    </div>
+
+    <div id="control-panel" class="panel">
+      <div class="form-control">
+        <button class="button left">Export</button>
+        <button class="button">Import</button>
+        <button class="button right active">All</button>
+      </div>
+      <div class="form-control">
+        <label class="label left">Current Product: <span id="product-name">All</span></label>
+        <input type="text" name="product" class="product">
+        <ul id="search-result"></ul>
+      </div>
+    </div>
+    <div id="info-panel" class="panel">
+      <h4>Country: <span id="current-country"><span></h4>
+      <h4 id="import-title" class="table-container-title">Imports</h4>
+      <div id="import-container" class="table-container  half-height">
+        
+        <table id="import-table" class="data-table">
+        </table>     
+      </div>
+      <h4 id="export-title" class="table-container-title">Exports</h4>
+      <div id="export-container" class="table-container  half-height">
+        
+        <table id="export-table" class="data-table">
+        </table>
+      </div>
+    </div>
+
+
+    <script src="jquery-3.1.0.js"></script>
+    <script src="scripts/interface.js"></script>
     <script src="node_modules/babel-core/browser-polyfill.js"></script>
     <script src="node_modules/babel-core/browser.js"></script>
     <script src="node_modules/es6-module-loader/dist/es6-module-loader.js"></script>

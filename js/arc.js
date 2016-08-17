@@ -11,15 +11,31 @@ function findVector(latitude, longitude){
   var y = window.GLOBE_RADIUS * Math.sin(phi);
   var z = window.GLOBE_RADIUS * Math.cos(phi) * Math.cos(theta);
   // vector
-  var v = new THREE.Vector3(x, y, z);
-  return v;
+  return new THREE.Vector3(x, y, z);;
 }
 
-// cool callback
-function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, colorToDraw, callback)
+function arcpath(originCountry, destCountry, colorToDraw, importQuestionMark, value, tradePercent, callback)
 {
+  const importExportSpacing = 0.5;
+
+  var fromLatitude = originCountry.lat;
+  var fromLongitude = originCountry.long;
+  var toLatitude;
+  var toLongitude;
+
+  if(importQuestionMark){
+    toLatitude = destCountry.lat - importExportSpacing;
+    toLongitude = destCountry.long - importExportSpacing;
+  }
+  else{
+    toLatitude = destCountry.lat + importExportSpacing;
+    toLongitude = destCountry.long + importExportSpacing;
+  }
+
+  // get from and to locations in the form of threeJS vectors
   var vF = findVector(fromLatitude, fromLongitude);
-  var vT = findVector(toLatitude, toLongitude); 
+  var vT = findVector(toLatitude, toLongitude);
+  // calculate distance between them
   var dist = vF.distanceTo(vT);
   
   // here we are creating the control points for the first ones.
@@ -33,38 +49,109 @@ function arcpath(fromLatitude, fromLongitude, toLatitude, toLongitude, colorToDr
   // then we create a vector for the midpoints.
   var mid = new THREE.Vector3(xC, yC, zC);
 
-  ////////////////////////// some more curve magic i guess????
-  var smoothDist = map(dist, 0, 10, 0, 15/dist );
+  // map the distance to 1.0 --> 1.7
+  // we want further countries to have higher arcs
+  if (dist < window.GLOBE_DIAMETER * 0.8)
+    var heightConst = map(dist, 0, window.GLOBE_DIAMETER, 13, 15);
+  else
+    var heightConst = map(dist, 0, window.GLOBE_DIAMETER, 13, 18);
+  var smoothDist = map( dist, 0, 10, 0, heightConst/dist );
   mid.setLength( window.GLOBE_RADIUS * smoothDist );
   cvT.add(mid);
   cvF.add(mid);
   cvT.setLength( window.GLOBE_RADIUS * smoothDist );
   cvF.setLength( window.GLOBE_RADIUS * smoothDist );
-  ////////////////////////// end curve magic
 
-   // create curve object
-   var curve = new THREE.CubicBezierCurve3( vF, cvF, cvT, vT );
+  // create curve object
+  var curve = new THREE.CubicBezierCurve3( vF, cvF, cvT, vT );
   // create curve geometry
   var geometry2 = new THREE.Geometry();
   geometry2.vertices = curve.getPoints( 50 );
-
-  var material2 = new THREE.LineBasicMaterial( { color : colorToDraw , linewidth: 3, fog: true, lineopacity: 0.8 } );
+  // make shaders for this object, the line opacity is not working as of right now
+  var material2 = new THREE.LineBasicMaterial( { color : colorToDraw , linewidth: window.lineUnselectedThickness, fog: true, lineopacity: 0.8 } );
   
-  // CREATING ACTUAL 3D OBJECT TO RENDER:::
+  // this is the threeJS object that is representing path itself
   var curveObject = new THREE.Line( geometry2, material2 );
-  // added to scene a bit further below 
 
-  // important: we need to save the paths for adding graphics to them::
-  // paths.push(curve);
+  // number of moving clusters, and the number of arrows in each cluster
+  var numMovingGuyClusters = Math.floor(map(curve.getLength(), 50, 600, 1, 15));
 
-  // make some cubes for testing, also added to scene below
-  // var firstCube = new THREE.Mesh(new THREE.CubeGeometry(10,10,10), new THREE.MeshNormalMaterial());
-  // firstCube.position.x = xT; firstCube.position.y = yT; firstCube.position.z = zT;
-  // var secondCube = new THREE.Mesh(new THREE.CubeGeometry(10,10,10), new THREE.MeshNormalMaterial());
-  // secondCube.position.x = xF; secondCube.position.y = yF; secondCube.position.z = zF;
+  var clusterDensityMovingGuys = 2; //Math.floor(map(tradePercent, 0, 100, 1, 4));
+  // this is the spacing between arrows we want, in length units (not in %) 
+  const clusterSpacingReal = 3;
+  // calculate this spacing in %
+  const clusterSpacing = clusterSpacingReal / curve.getLength();
+
+  // this is the array of hashes holding all the moving object data
+  var movingGuys = [];
+
+  // this is the array of threeJS objects that we will add to our "curves" object wrapper via the callback function later
+  // this is not necessary to have seperate from the above array, but the rest of the code is structured to accomodate it this way 
+  // so I am letting it be for now. this array is used at the bottom, in the callback function
+  // start with just the curve object, add the moving guys in the loop below
+  var returnObjArr = [curveObject];
+
+  // speed we want, in length units (not in %)
+  const speedReal = map(tradePercent, 0, 100, 0.1, 1);
+  // calculate speed in %
+  const speed = speedReal / curve.getLength();
+
+  // start somewhere random
+  var position = Math.random();
+
+  for (var i = 1; i < numMovingGuyClusters; i++)
+  {
+    // move forward in position to disperse the clusters
+    position += 1/numMovingGuyClusters - clusterSpacing;
+    // wrap back if necessary
+    if (position >= 1) position -= 1;
+    for (var j = 0; j < clusterDensityMovingGuys; j++)
+    {
+      // move forward by clusterSpacing
+      position += clusterSpacing;
+      // wrap back if necessary
+      if (position > 1) position -= 1;
+
+      // build the arrow object
+      var newMovingGuyMaterial = new THREE.LineBasicMaterial( { color: colorToDraw, linewidth: 3 } );
+      var newMovingGuy = new THREE.Line(window.movingGuyUnselectedGeom, newMovingGuyMaterial);
+      newMovingGuy.isCurve = false;
+      newMovingGuy.parentCurve = curve;
+
+      // push to object wrapper array
+      returnObjArr.push(newMovingGuy);
+
+      // push again to window data array along with other info
+      movingGuys.push({
+        // threeJS 3D object
+        movingGuy: newMovingGuy,
+        // current position on the arc, 0-1
+        position: position,
+        // speed
+        speed: speed,
+        // whether it is an import or an export
+        importQuestionMark: importQuestionMark
+      });
+    }
+  }
+  curveObject.isCurve = true;
+  curveObject.childrenMovingGuys = movingGuys;
+
+  // this is the hash of info for this particular path to be stored in the global pathHash array
+  window.pathData.push({
+    // threeJS curve object
+    curve: curve,
+    curveObject: curveObject,
+    // array of moving guy objects
+    movingGuys: movingGuys,
+    origin: originCountry,
+    destination: destCountry,
+    importQuestionMark: importQuestionMark,
+    value: value
+  });
 
   if ( typeof callback == 'function'){
-    callback(null, curveObject);
+    callback(null, returnObjArr);
   }
 }
 
