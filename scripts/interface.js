@@ -16,12 +16,13 @@ $('#slider').slider({
     value: 90,
     slide: function(event, ui){
         $('#percentOfCurves').text(100 - ui.value);
+    },
+    change: function(event,ui){
+        console.log('slider keyup');
+        console.log(100 - ui.value);
     }
 });
 
-$('#slider').on('slidestop', function(){
-    console.log('slider keyup');
-});
 
 $('.show').on('click', function(){
     $('#info-panel').toggle();
