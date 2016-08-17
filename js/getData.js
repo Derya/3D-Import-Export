@@ -191,6 +191,7 @@ function showData(data, countryArr) {
   }
 
   sortedImport.forEach(function(ele){
+    $('#import-title').show();
     var thisCountry = getCountryByLongCode(ele.dest_id, countryArr);
     if (thisCountry) {
       countryName = thisCountry.id;
@@ -211,6 +212,7 @@ function showData(data, countryArr) {
   });
 
   sortedExport.forEach(function(ele){
+    $('#export-title').show();
     var thisCountry = getCountryByLongCode(ele.dest_id, countryArr);
     if (thisCountry) {
       countryName = thisCountry.id;
