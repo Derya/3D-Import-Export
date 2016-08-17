@@ -19,6 +19,10 @@ $('#slider').slider({
     }
 });
 
+$('#slider').on('slidestop', function(){
+    console.log('slider keyup');
+});
+
 $('.show').on('click', function(){
     $('#info-panel').toggle();
     if($(this).attr('data-status') == 'visible'){
