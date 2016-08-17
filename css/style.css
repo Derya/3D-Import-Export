@@ -1,7 +1,7 @@
 body, html {
   background-color:black;
   margin: 0px;
-  font-family: helvetica, arial;
+  font-family: 'Open Sans', sans-serif;
   color: #333;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
@@ -22,7 +22,7 @@ body, html {
 }
 
 #msg {
-  font: 40px helvetica, arial;
+  font-size: 40px;
 }
 
 #info h3 {
@@ -86,9 +86,27 @@ body, html {
 #info-panel {
   color: white;
   text-align: left;
-  top: 20px;
+  /*top: 20px;*/
+  top: 50px;
   right: 20px;
   padding-bottom: 0;
+  display: none;
+}
+
+.show {
+  color: white;
+  text-align: left;
+  top: 20px;
+  right: 20px;
+  position:fixed;
+  display: none;
+}
+
+#curve_info{
+  background-color: black;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
 }
 
 #info-panel h4 {
@@ -105,9 +123,15 @@ body, html {
 }
 
 .table-container {
+
+/*  overflow: scroll;
+  max-height: 87%;
+  margin-bottom: 10px;*/
+
   overflow: auto;
   max-height: 88%;
   margin-bottom: 3%;
+
 }
 
 .title-container {

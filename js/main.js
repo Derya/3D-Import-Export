@@ -36,6 +36,7 @@ function initialize(){
   $('.loading-container').hide();
   $('.panel').fadeIn('fast');
   $('#info').fadeIn('fast');
+  $('.show').fadeIn('fast');
 }
 
 d3.json('data/world.json', function (err, data) {
@@ -146,7 +147,6 @@ d3.json('data/world.json', function (err, data) {
   }
 
   function clickToRedraw(event){
-
     function getCountryByFullName(query, arr) {
       return arr.find(function(q) {return q.id == query});
     }
@@ -318,15 +318,20 @@ function animate() {
           var originInfo = info.origin.id;
           var destInfo = info.destination.id;
           if(info.importQuestionMark){
-            var importInfo = "import";
+            var importInfo = "Import";
+            var connecting_word =" from ";
           }
           else {
-            var importInfo = "export";
+            var importInfo = "Export";
+            var connecting_word =" to ";
           }
           
           var valueInfo = info.value;
 
-          $("#curve_info").html(originInfo + " " + destInfo + " "+ importInfo + " $" + valueInfo);
+          $("#curve_info").html(
+            importInfo + "<br/>" +
+            originInfo + connecting_word + destInfo + "<br/>"+
+            "$" + valueInfo);
         }
 
       }

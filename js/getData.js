@@ -4,6 +4,7 @@ import { arcpath } from './arc';
 import tinycolor from 'TinyColor';
 import { beautifulDigits } from './beautifulDigits';
 
+
 var noDataMessage = 'Data of this country is not available.';
 
 function getCountryByFullName(query, arr) {
@@ -191,6 +192,7 @@ function showData(data, countryArr) {
   }
 
   sortedImport.forEach(function(ele){
+    $('#import-title').show();
     var thisCountry = getCountryByLongCode(ele.dest_id, countryArr);
     if (thisCountry) {
       countryName = thisCountry.id;
@@ -211,6 +213,7 @@ function showData(data, countryArr) {
   });
 
   sortedExport.forEach(function(ele){
+    $('#export-title').show();
     var thisCountry = getCountryByLongCode(ele.dest_id, countryArr);
     if (thisCountry) {
       countryName = thisCountry.id;

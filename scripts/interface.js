@@ -10,6 +10,21 @@ $.getJSON('http://josh-han.com:10002/sitcnames').done(function(data){
     sitcNames.unshift({sitc_id: '000000', name: 'All', keywords: null});
 });
 
+$('.table-container-title').hide();
+
+$('.show').on('click', function(){
+    $('#info-panel').toggle();
+    if($(this).attr('data-status') == 'visible'){
+        $(this).text("Show Results");
+        $(this).attr('data-status', 'hidden');
+    }
+    else{
+        $(this).text("Hide Results");
+        $(this).attr('data-status', 'visible');
+    }
+    
+});
+
 $('.button').click(function(){
     $('.button').removeClass('active');
     $(this).addClass('active');
@@ -75,7 +90,9 @@ function searchName(searchArr) {
     return result;
 }
 
+
 $('#control-panel').on('click', '.sitc-name', function(){
+   
     $('#search-result').find('li').remove();
     var sitcId = $(this).data('id');
     var sitcName = $(this).find('.sitc-name-detail').text();
