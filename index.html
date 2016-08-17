@@ -12,7 +12,8 @@
     <button id="magic" style="display:none;">magic</button>
     <div id="info">
       <div id="msg">Mouseover a country...</div>
-      <p id="curve_info"></p>
+      <p id="curve_info_import" class="curve_info"></p>
+      <p id="curve_info_export" class="curve_info"></p>
     </div>
 
 <!--     <div id="loading">Loading...</div> -->
@@ -37,14 +38,14 @@
     <div id="info-panel" class="panel">
       <h4><span id="current-country"><span></h4>
       <div id="import-title-container" class="title-container">
-        <h4 id="import-title" class="table-container-title">Imports</h4>
+        <h4 id="import-title" class="table-container-title">Imports: <span id="total-import"></span> total</h4>
       </div>
       <div id="import-container" class="table-container  half-height">
         <table id="import-table" class="data-table">
         </table>     
       </div>
       <div id="export-title-container" class="title-container">
-        <h4 id="export-title" class="table-container-title">Exports</h4>
+        <h4 id="export-title" class="table-container-title">Exports: <span id="total-export"></span> total</h4>
       </div>
       <div id="export-container" class="table-container  half-height">
         <table id="export-table" class="data-table">

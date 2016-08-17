@@ -25,6 +25,11 @@ $('.show').on('click', function(){
     
 });
 
+function clearDisplays() {
+$("#curve_info_export").html("Import");
+$("#curve_info_import").html("Export");
+}
+
 $('.button').click(function(){
     $('.button').removeClass('active');
     $(this).addClass('active');
@@ -37,16 +42,23 @@ $('.button').click(function(){
             $('#import-container').hide();
             $('#import-title-container').hide();
             $('#export-container').removeClass('half-height');
+            $('#curve_info_export').show();
+            $('#curve_info_import').hide();
             break;
         case 'Import':
             $('#export-container').hide();
             $('#export-title-container').hide();
             $('#import-container').removeClass('half-height');
+            $('#curve_info_export').hide();
+            $('#curve_info_import').show();
             break;
         default:
+            $('#curve_info_export').show();
+            $('#curve_info_import').show();
             break;
     }
     window.params.format = $(this).text().toLowerCase();
+    clearDisplays();
     redraw();
 });
 

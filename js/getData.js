@@ -3,6 +3,7 @@ import d3 from 'd3';
 import { arcpath } from './arc';
 import tinycolor from 'TinyColor';
 import { beautifulDigits } from './beautifulDigits';
+import {despaceify} from './utils';
 
 
 var noDataMessage = 'Data of this country is not available.';
@@ -57,8 +58,15 @@ function drawData(country, format, product, countryArr, curves){
     // trade to a country, but rather just has the total export or total import for this country
     // remove it:
     data = data.filter(function(obj) {
-      return obj.dest_id !== 'xxxxh';
+      if (obj.dest_id === 'xxxxh')
+      {
+        return false;
+      }
+      return true;
     });
+
+    window.totalImport = 0;
+    window.totalExport = 0;
 
     // we are going to find the minimum and maximum values for this dataset
     var maxVal = -1;
@@ -87,6 +95,7 @@ function drawData(country, format, product, countryArr, curves){
       // draw import if it exists
       if (trade.import_val)
       {
+        window.totalImport += trade.import_val;
         importVal = Math.log(trade.import_val);
 
         tradePercent = 100 * (importVal - window.displayMin) / (window.displayMax - window.displayMin);
@@ -114,6 +123,7 @@ function drawData(country, format, product, countryArr, curves){
       // draw export if it exists
       if (trade.export_val)
       {
+        window.totalExport += trade.export_val;
         exportVal = Math.log(trade.export_val);
 
         tradePercent = 100 * (exportVal - window.displayMin) / (window.displayMax - window.displayMin);
@@ -142,6 +152,9 @@ function drawData(country, format, product, countryArr, curves){
 
     });
 
+    window.totalExport = "$" + beautifulDigits(window.totalExport);
+    window.totalImport = "$" + beautifulDigits(window.totalImport);
+
     showData(data, countryArr);
 
     window.all_curves_uuid = [];
@@ -160,6 +173,9 @@ function showData(data, countryArr) {
 
   $('.data-table').find('tr').remove();
   $('#info-panel').find('.no-data-message').remove();
+
+  $('#total-import').text(window.totalImport);
+  $('#total-export').text(window.totalExport);
 
   var sortedImport = data.filter(function(ele){
     return ele.import_val;
@@ -208,7 +224,7 @@ function showData(data, countryArr) {
     if (tradeVal > window.displayMin)
       tr.css('background', `${tradeColor}`);
     $('<td>').text(countryName).appendTo(tr);
-    $('<td nowrap>').text(`$${beautifulDigits(ele.import_val)}`).appendTo(tr);
+    $('<td nowrap>').addClass(despaceify(countryName)).text(`$${beautifulDigits(ele.import_val)}`).appendTo(tr);
     $('#import-table').append(tr);
   });
 
@@ -229,8 +245,7 @@ function showData(data, countryArr) {
     if (tradeVal > window.displayMin)
       tr.css('background', `${tradeColor}`);
     $('<td>').text(countryName).appendTo(tr);
-    debugger
-    $('<td nowrap>').text(`$${beautifulDigits(ele.export_val)}`).appendTo(tr);
+    $('<td nowrap>').addClass(despaceify(countryName)).text(`$${beautifulDigits(ele.export_val)}`).appendTo(tr);
     $('#export-table').append(tr);
   });
  

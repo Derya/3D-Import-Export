@@ -1,3 +1,14 @@
+import { scene, camera, renderer } from './scene';
+import { setEvents } from './setEvents';
+import { convertToXYZ, getEventCenter, geodecoder, arc, get3DCoordsFrom2D } from './geoHelpers';
+import { mapTexture } from './mapTexture';
+import { getTween, memoize, despaceify } from './utils';
+import topojson from 'topojson';
+import THREE from 'THREE';
+import * as orbitControls from 'OrbitControls';
+import d3 from 'd3';
+import { getData, drawData } from './getData';
+
 // globe size
 window.GLOBE_RADIUS = 200;
 window.GLOBE_HALF_CIRCUMF = Math.PI * window.GLOBE_RADIUS;
@@ -18,20 +29,6 @@ window.movingGuySelectedGeom.vertices.push(new THREE.Vector3(0, -30, -30));
 window.movingGuySelectedGeom.vertices.push(new THREE.Vector3(0, 0, 30));
 window.movingGuySelectedGeom.vertices.push(new THREE.Vector3(0, 30, -30));
 
-const OrbitControls = orbitControls.default(THREE);
-var curves;
-
-import { scene, camera, renderer } from './scene';
-import { setEvents } from './setEvents';
-import { convertToXYZ, getEventCenter, geodecoder, arc, get3DCoordsFrom2D } from './geoHelpers';
-import { mapTexture } from './mapTexture';
-import { getTween, memoize } from './utils';
-import topojson from 'topojson';
-import THREE from 'THREE';
-import * as orbitControls from 'OrbitControls';
-import d3 from 'd3';
-import { getData, drawData } from './getData';
-
 function initialize(){
   $('.loading-container').hide();
   $('.panel').fadeIn('fast');
@@ -39,9 +36,43 @@ function initialize(){
   $('.show').fadeIn('fast');
 }
 
+const OrbitControls = orbitControls.default(THREE);
+var curves;
+
+// var imagePrefix = "textures/";
+// var direction = ['front', 'back', 'right', 'left', 'up', 'down'];
+// var imageSuffix = ".png";
+
+var materialArray = [];
+for(var j = 0; j < 6; j++){
+  materialArray.push(new THREE.MeshBasicMaterial({
+    // map: THREE.ImageUtils.loadTexture( imagePrefix + direction[j] + imageSuffix),
+    map: THREE.ImageUtils.loadTexture( "textures/all.gif"),
+    side: THREE.BackSide
+  }));
+}
+
+var skyGeometry = new THREE.CubeGeometry(8000,8000,8000);
+var skyMaterial = new THREE.MeshFaceMaterial(materialArray);
+var skyBox = new THREE.Mesh(skyGeometry, skyMaterial);
+
+scene.add(skyBox);
+
+var controls = new OrbitControls(camera);
+controls.enablePan = false;
+controls.enableZoom = true;
+controls.enableRotate = true;
+controls.minDistance = 900;
+controls.maxDistance = 2000;
+controls.minPolarAngle = 0;
+controls.maxPolarAngle = Math.PI;
+
+var pt; var pathHash;
+var mouse = new THREE.Vector2();
+
 d3.json('data/world.json', function (err, data) {
   initialize();
-  var currentCountry, selectedCountry, overlay;
+  var currentCountry, currentCountryObj, selectedCountry, overlay;
   var segments = 155; // number of vertices. Higher = better mouse accuracy
 
   // Setup cache for country textures
@@ -109,7 +140,15 @@ d3.json('data/world.json', function (err, data) {
     d3.timer(tweenRot);
   }
 
+  function getCountryByFullName(query, arr) {return arr.find(function(q) {return q.id == query});}
+
+  function getCurveByCountryObj(query, arr) {return arr.find(function(q) {return q.destination == query})}
+
   function onGlobeMousemove(event) {
+
+    if (currentIntersected !== undefined) return;
+
+    // **** begin logic for highlighting countries **** //
     var map; var material;
 
     // Get pointc, convert to latitude/longitude
@@ -118,25 +157,194 @@ d3.json('data/world.json', function (err, data) {
     // Look for country at that latitude/longitude
     var country = geo.search(latlng[0], latlng[1]);
 
-    if (country !== null && country.code !== currentCountry) {
-
+    if (country == null) {
+      currentCountry = window.params.countryName;
+      d3.select("#msg").html(window.params.countryName);
+    }
+    else {
       // Track the current country displayed
       currentCountry = country.code;
-
-      // Update the html
-      d3.select("#msg").html(country.code);
-
-       // Overlay the selected country
-       map = textureCache(country.code, '#13355F');
-       material = new THREE.MeshPhongMaterial({map: map, transparent: true});
-       if (!overlay) {
-        overlay = new THREE.Mesh(new THREE.SphereGeometry(201, 40, 40), material);
-        overlay.rotation.y = Math.PI;
-        root.add(overlay);
-      } else {
-        overlay.material = material;
-      }
     }
+
+    currentCountryObj = getCountryByFullName(currentCountry, countryArr);
+
+    // Update the html
+    d3.select("#msg").html(currentCountry);
+
+     // Overlay the selected country
+     map = textureCache(currentCountry, '#13355F');
+     material = new THREE.MeshPhongMaterial({map: map, transparent: true});
+     if (!overlay) {
+      overlay = new THREE.Mesh(new THREE.SphereGeometry(201, 40, 40), material);
+      overlay.rotation.y = Math.PI;
+      root.add(overlay);
+    } else {
+      overlay.material = material;
+    }
+    
+
+    // **** end logic for highlighting countries **** //
+
+  } // end onGlobeMouseMove event handler
+
+  function displayImportHover(selected1, selected2, val) {
+    $("#curve_info_import").html(
+      "Import<br/>" +
+      selected1 + " from " + selected2 + "<br/>"+
+      val);
+  }
+  function displayExportHover(selected1, selected2, val) {
+    $("#curve_info_export").html(
+      "Export<br/>" +
+      selected1 + " to " + selected2 + "<br/>"+
+      val);
+  }
+  function displayImportHoverNone(selected1, selected2) {
+    $("#curve_info_import").html(
+      "Import<br/>" +
+      selected1 + " from " + selected2 +
+      "<br/>No Data");
+  }
+  function displayExportHoverNone(selected1, selected2) {
+    $("#curve_info_export").html(
+      "Export<br/>" +
+      selected1 + " to " + selected2 +
+      "<br/>No Data");
+  }
+  function clearDisplays() {
+    $("#curve_info_export").html("");
+    $("#curve_info_import").html("");
+  }
+  function selfDisplay() {
+    $("#curve_info_export").html("Total Exports<br/>" +
+      window.totalExport);
+    $("#curve_info_import").html("Total Imports<br/>" +
+      window.totalImport);
+  }
+
+  var raycaster = new THREE.Raycaster();
+  raycaster.linePrecision = 2;
+  var currentIntersected = undefined;
+  window.addEventListener( 'mousemove', onMouseMove, false );
+
+  function onMouseMove(event){
+    event.preventDefault();
+    mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1; 
+
+    // **** begin logic for highlighting hovered arc **** //
+
+    // check if any data is being displayed
+    if (!curves) {
+      // no data is being displayed, make sure currentIntersected is undefined
+      currentIntersected = undefined;
+      clearDisplays();
+    } else {
+      // figure out what is being hovered over
+      raycaster.setFromCamera( mouse, camera );
+      // intersects will be array of curve and moving guy objects that the mouse is hovering over
+      var allIntersects = raycaster.intersectObjects( curves.children , true );
+      var intersects = [];
+
+      // filter intersects to just the curves
+      for (var i = 0; i < allIntersects.length; i++)
+      {
+        if (allIntersects[i].object.isCurve) {
+          var intersectsWithGlobe = raycaster.intersectObjects( [allIntersects[i].object, baseGlobe] , true );
+          if (intersectsWithGlobe[0].object == allIntersects[i].object) {
+            intersects.push(allIntersects[i].object);
+          }
+        }
+      }
+
+      // check to make sure the raycaster found anything
+      // IF raycaster found nothing
+      if ( intersects.length <= 0 ) {
+        // deselect previous curve
+        if ( currentIntersected != undefined ) {
+          currentIntersected.material.linewidth = window.lineUnselectedThickness;
+          currentIntersected.childrenMovingGuys.forEach(function(movingGuy) {
+            movingGuy.movingGuy.material.linewidth = window.lineUnselectedThickness;
+          });
+        }
+        // make sure we know there is no selected curve
+        currentIntersected = undefined;
+
+        // then, use currentCountry to dictate the info panel
+        // IF we are hovering over a country
+        if (currentCountry) {
+          var originInfo = window.params.countryName;
+          var destInfo = currentCountry;
+
+          if (originInfo == destInfo) {
+            selfDisplay();
+          } else {
+            var importVal = $('#import-table .' + despaceify(currentCountry)).text();
+            var exportVal = $('#export-table .' + despaceify(currentCountry)).text();
+
+            if (importVal.length > 0) {
+              displayImportHover(originInfo, destInfo, importVal);
+            } else {
+              displayImportHoverNone(originInfo, destInfo);
+            }
+            if (exportVal.length > 0) {
+              displayExportHover(originInfo, destInfo, exportVal);
+            } else {
+              displayExportHoverNone(originInfo, destInfo);
+            }
+          }
+        }
+        // ELSE we are not hovering over a country
+        else {
+          selfDisplay();
+        }
+
+      // ELSE raycaster found a curve
+      } else {
+        // we only need to do operations if the new curve the mouse is over is different from 
+        // the previous currentIntersected, or the previous doesnt exist
+        if (currentIntersected == undefined || currentIntersected != intersects[0])
+        {
+          // deselect previous curve
+          if ( currentIntersected != undefined ) {
+            currentIntersected.material.linewidth = window.lineUnselectedThickness;
+            currentIntersected.childrenMovingGuys.forEach(function(movingGuy) {
+              movingGuy.movingGuy.material.linewidth = window.lineUnselectedThickness;
+            });
+          }
+
+          // get current intersected curve
+          currentIntersected = intersects[0];
+
+          currentIntersected.material.linewidth = window.lineSelectedThickness;
+          currentIntersected.childrenMovingGuys.forEach(function(movingGuy) {
+            movingGuy.movingGuy.material.linewidth = window.lineSelectedThickness;
+          });
+
+          var index = $.inArray(currentIntersected.uuid, window.all_curves_uuid);
+          var originInfo = window.params.countryName;
+          var destInfo = window.pathData[index].destination.id;
+          var importVal = $('#import-table .' + despaceify(destInfo)).text();
+          var exportVal = $('#export-table .' + despaceify(destInfo)).text();
+
+          if (importVal.length > 0) {
+            displayImportHover(originInfo, destInfo, importVal);
+          } else {
+            displayImportHoverNone(originInfo, destInfo);
+          }
+          if (exportVal.length > 0) {
+            displayExportHover(originInfo, destInfo, exportVal);
+          } else {
+            displayExportHoverNone(originInfo, destInfo);
+          }
+
+        }
+
+      } // end else statement for condition to make sure raycaster found anything
+
+    } // end if curves conditional for logic to highlight arc paths for arc path under the mouse
+
+    // **** end logic for highlighting hovered arc **** //
   }
 
   function magicRedraw(){
@@ -170,6 +378,7 @@ d3.json('data/world.json', function (err, data) {
 
     if (countryLongCode) {
       window.params.country = countryLongCode;
+      window.params.countryName = country.code;
       magicRedraw();
     }
   }
@@ -180,52 +389,6 @@ d3.json('data/world.json', function (err, data) {
 });
 
 
-// var imagePrefix = "textures/";
-// var direction = ['front', 'back', 'right', 'left', 'up', 'down'];
-// var imageSuffix = ".png";
-
-var materialArray = [];
-for(var j = 0; j < 6; j++){
-  materialArray.push(new THREE.MeshBasicMaterial({
-    // map: THREE.ImageUtils.loadTexture( imagePrefix + direction[j] + imageSuffix),
-    map: THREE.ImageUtils.loadTexture( "textures/all.gif"),
-    side: THREE.BackSide
-  }));
-}
-
-var skyGeometry = new THREE.CubeGeometry(8000,8000,8000);
-var skyMaterial = new THREE.MeshFaceMaterial(materialArray);
-var skyBox = new THREE.Mesh(skyGeometry, skyMaterial);
-
-scene.add(skyBox);
-
-var controls = new OrbitControls(camera);
-controls.enablePan = false;
-controls.enableZoom = true;
-controls.enableRotate = true;
-// controls.minDistance = 900;
-controls.maxDistance = 2000;
-controls.minPolarAngle = 0;
-controls.maxPolarAngle = Math.PI;
-
-var pt; var pathHash;
-var mouse = new THREE.Vector2();
-
-function onMouseMove(event){
-  event.preventDefault();
-  mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-  mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1; 
-  for(var i=0; i< $(".tooltips").length; i++){
-    tooltips[i].style.top = mouse.y +20;
-    tooltips[i].style.left = mouse.x +20;
-  }
-}
-
-var raycaster = new THREE.Raycaster();
-raycaster.linePrecision = 1;
-var intersects;
-var currentIntersected;
-window.addEventListener( 'mousemove', onMouseMove, false );
 
 function animate() {
   requestAnimationFrame(animate);
@@ -268,84 +431,6 @@ function animate() {
         }
       }
 
-    }
-
-  }
-
-  // if any data is being displayed
-  if (curves)
-  {
-    // figure out what is being hovered over
-    raycaster.setFromCamera( mouse, camera );
-    // intersects will be array of curve and moving guy objects that the mouse is hovering over
-    intersects = raycaster.intersectObjects( curves.children , true);
-
-    // if there are any such we are hovering over
-    if ( intersects && intersects.length > 0 ) {
-
-      // deselect previous curve
-      if ( currentIntersected ) {
-        currentIntersected.material.linewidth = window.lineUnselectedThickness;
-        currentIntersected.childrenMovingGuys.forEach(function(movingGuy) {
-          movingGuy.movingGuy.material.linewidth = window.lineUnselectedThickness;
-        });
-      }
-
-      // var newMovingGuyMaterial = new THREE.LineBasicMaterial( { color: colorToDraw, linewidth: 3 } );
-
-      currentIntersected = undefined;
-
-      // get current intersected curve if there is one
-      for (var i = 0; i < intersects.length; i++)
-      {
-        if (intersects[i].object.isCurve)
-        {
-          currentIntersected = intersects[i].object;
-          break;
-        }
-      }
-
-      if (currentIntersected) {
-        currentIntersected.material.linewidth = window.lineSelectedThickness;
-        currentIntersected.childrenMovingGuys.forEach(function(movingGuy) {
-          movingGuy.movingGuy.material.linewidth = window.lineSelectedThickness;
-        });
-
-        var index = $.inArray(currentIntersected.uuid, window.all_curves_uuid);
-        var info = window.pathData[index];
-
-        if (info) {
-          var originInfo = info.origin.id;
-          var destInfo = info.destination.id;
-          if(info.importQuestionMark){
-            var importInfo = "Import";
-            var connecting_word =" from ";
-          }
-          else {
-            var importInfo = "Export";
-            var connecting_word =" to ";
-          }
-          
-          var valueInfo = info.value;
-
-          $("#curve_info").html(
-            importInfo + "<br/>" +
-            originInfo + connecting_word + destInfo + "<br/>"+
-            "$" + valueInfo);
-        }
-
-      }
-
-    }
-    // else if we are not hovering over any
-    else {
-      // deselect
-      if ( currentIntersected !== undefined ) {
-        currentIntersected.material.linewidth = window.lineUnselectedThickness;
-        currentIntersected.childrenMovingGuys.forEach(function(movingGuy) {
-          movingGuy.movingGuy.material.linewidth = window.lineUnselectedThickness;
-        });
-      }
     }
 
   }

@@ -38,6 +38,15 @@ export function debounce(func, wait, immediate) {
   };
 }
 
+String.prototype.replaceAll = function(search, replacement) {
+  var target = this;
+  return target.replace(new RegExp(search, 'g'), replacement);
+};
+
+export var despaceify = function (stringIn) {
+  return stringIn.replaceAll(' ', '-');
+}
+
 export var getTween = function (prop, to, time) {
   time = time || 500;
   var node = this;
