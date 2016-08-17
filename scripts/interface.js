@@ -30,17 +30,17 @@ $('.button').click(function(){
     $(this).addClass('active');
 
     $('.table-container').addClass('half-height').show();
-    $('.table-container-title').show();
+    $('.title-container').show();
 
     switch($(this).text()) {
         case 'Export':
             $('#import-container').hide();
-            $('#import-title').hide();
+            $('#import-title-container').hide();
             $('#export-container').removeClass('half-height');
             break;
         case 'Import':
             $('#export-container').hide();
-            $('#export-title').hide();
+            $('#export-title-container').hide();
             $('#import-container').removeClass('half-height');
             break;
         default:
