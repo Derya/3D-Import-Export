@@ -20,6 +20,7 @@ for (var i = 0; i < worldjson.objects.countries.geometries.length; i++)
     worldjson.objects.countries.geometries[i].longCode = country_entry_in_code_json.first;
     worldjson.objects.countries.geometries[i].lat = country_entry_in_loc_json.LAT;
     worldjson.objects.countries.geometries[i].long = country_entry_in_loc_json.LONG;
+    worldjson.objects.countries.geometries[i].actual_full_name = country_entry_in_loc_json.FULL_NAME;
   } else {
     console.log("couldn't find entry for: " + currentCountry);
   }
