@@ -77,7 +77,7 @@ function drawData(country, format, product, countryArr, curves){
     }
 
     // minVal += (1-window.showPercent) * maxVal;
-    minVal += 0.03 * maxVal;
+    minVal += window.showPercent * maxVal;
     window.displayMax = Math.log(maxVal);
     window.displayMin = Math.log(minVal);
 

@@ -101,6 +101,13 @@ body, html {
   background: #BDBDBD; 
 }
 
+.more {
+  margin-left: -87px;
+}
+.less {
+  margin-right: -87px;
+}
+
 .show {
   color: white;
   text-align: left;
@@ -131,11 +138,6 @@ body, html {
 }
 
 .table-container {
-
-/*  overflow: scroll;
-  max-height: 87%;
-  margin-bottom: 10px;*/
-
   overflow: auto;
   max-height: 88%;
   margin-bottom: 3%;
@@ -190,12 +192,3 @@ body, html {
   color: #999;
 }
 
-.tooltip span{
-  display: none;
-}
-
-.tooltip:hover span{
-  display: block;
-  position: fixed;
-  overflow:hidden;
-}

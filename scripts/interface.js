@@ -9,17 +9,21 @@ $.getJSON('http://josh-han.com:10002/sitcnames').done(function(data){
     sitcNames = data;
     sitcNames.unshift({sitc_id: '000000', name: 'All', keywords: null});
 });
-
+window.showPercent = 0.03;
 $('.table-container-title').hide();
 $('#slider').slider({
     range: "min",
-    value: 90,
+    value: 3,
+    min: 0,
+    max: 30,
     slide: function(event, ui){
-        $('#percentOfCurves').text(100 - ui.value);
+        // $('#percentOfCurves').text(100 - ui.value);
     },
     change: function(event,ui){
-        console.log('slider keyup');
-        console.log(100 - ui.value);
+        // console.log('slider keyup');
+        // console.log(100 - ui.value);
+        window.showPercent = ui.value/100;
+        redraw();
     }
 });
 
