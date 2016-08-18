@@ -29,6 +29,8 @@ window.movingGuySelectedGeom.vertices.push(new THREE.Vector3(0, -30, -30));
 window.movingGuySelectedGeom.vertices.push(new THREE.Vector3(0, 0, 30));
 window.movingGuySelectedGeom.vertices.push(new THREE.Vector3(0, 30, -30));
 
+window.inPanels = false;
+
 function initialize(){
   $('.loading-container').hide();
   $('.panel').fadeIn('fast');
@@ -37,7 +39,7 @@ function initialize(){
 }
 
 const OrbitControls = orbitControls.default(THREE);
-var curves;
+var curves; var destInfo;
 
 // var imagePrefix = "textures/";
 // var direction = ['front', 'back', 'right', 'left', 'up', 'down'];
@@ -146,25 +148,104 @@ d3.json('data/world.json', function (err, data) {
 
   function onGlobeMousemove(event) {
 
-    if (currentIntersected !== undefined) return;
+    if (window.inPanels) return;
 
-    // **** begin logic for highlighting countries **** //
-    var map; var material;
+    if (currentIntersected !== undefined) {
+      currentCountry = destInfo;
+    } else {
+      // Get pointc, convert to latitude/longitude
+      var latlng = getEventCenter.call(this, event);
 
-    // Get pointc, convert to latitude/longitude
-    var latlng = getEventCenter.call(this, event);
+      // Look for country at that latitude/longitude
+      var country = geo.search(latlng[0], latlng[1]);
 
-    // Look for country at that latitude/longitude
-    var country = geo.search(latlng[0], latlng[1]);
-
-    if (country == null) {
-      currentCountry = window.params.countryName;
-      d3.select("#msg").html(window.params.countryName);
+      if (country == null) {
+        currentCountry = window.params.countryName;
+        d3.select("#msg").html(window.params.countryName);
+      }
+      else {
+        // Track the current country displayed
+        currentCountry = country.code;
+      }
     }
-    else {
-      // Track the current country displayed
-      currentCountry = country.code;
+
+    selectCountry();
+
+  } // end onGlobeMouseMove event handler
+
+  $('.data-table').on('click', 'tr', function(e) {
+    e.stopPropagation();
+    var countryClickedName = $(this).children().first().text();
+
+    var countryObj = getCountryByFullName(countryClickedName, countryArr);
+
+    var latlng = [countryObj.lat, countryObj.long];
+    // Get new camera position
+    var temp = new THREE.Mesh();
+    temp.position.copy(convertToXYZ(latlng, 900));
+    temp.lookAt(root.position);
+    temp.rotateY(Math.PI);
+
+    for (let key in temp.rotation) {
+      if (temp.rotation[key] - camera.rotation[key] > Math.PI) {
+        temp.rotation[key] -= Math.PI * 2;
+      } else if (camera.rotation[key] - temp.rotation[key] > Math.PI) {
+        temp.rotation[key] += Math.PI * 2;
+      }
     }
+
+    var tweenPos = getTween.call(camera, 'position', temp.position);
+    d3.timer(tweenPos);
+
+    var tweenRot = getTween.call(camera, 'rotation', temp.rotation);
+    d3.timer(tweenRot);
+
+    currentCountry = countryClickedName;
+
+    // deselect previous curve
+    if ( currentIntersected != undefined ) {
+      currentIntersected.material.linewidth = window.lineUnselectedThickness;
+      currentIntersected.childrenMovingGuys.forEach(function(movingGuy) {
+        movingGuy.movingGuy.material.linewidth = window.lineUnselectedThickness;
+      });
+    }
+    if ( currentIntersectedAlt != undefined ) {
+      currentIntersectedAlt.material.linewidth = window.lineUnselectedThickness;
+      currentIntersectedAlt.childrenMovingGuys.forEach(function(movingGuy) {
+        movingGuy.movingGuy.material.linewidth = window.lineUnselectedThickness;
+      });
+    }
+    // make sure we know there is no selected curve
+    currentIntersected = undefined;
+    currentIntersectedAlt = undefined;
+
+    // then, use currentCountry to dictate the info panel
+    var originInfo = window.params.countryName;
+    var destinationCountry = currentCountry;
+
+    if (originInfo == destinationCountry) {
+      selfDisplay();
+    } else {
+      var importVal = $('#import-table .' + despaceify(currentCountry)).text();
+      var exportVal = $('#export-table .' + despaceify(currentCountry)).text();
+
+      if (importVal.length > 0) {
+        displayImportHover(originInfo, destinationCountry, importVal);
+      } else {
+        displayImportHoverNone(originInfo, destinationCountry);
+      }
+      if (exportVal.length > 0) {
+        displayExportHover(originInfo, destinationCountry, exportVal);
+      } else {
+        displayExportHoverNone(originInfo, destinationCountry);
+      }
+    }
+
+    selectCountry();
+
+  });
+
+  function selectCountry() {
 
     currentCountryObj = getCountryByFullName(currentCountry, countryArr);
 
@@ -172,8 +253,8 @@ d3.json('data/world.json', function (err, data) {
     d3.select("#msg").html(currentCountry);
 
      // Overlay the selected country
-     map = textureCache(currentCountry, '#13355F');
-     material = new THREE.MeshPhongMaterial({map: map, transparent: true});
+     var map = textureCache(currentCountry, '#13355F');
+     var material = new THREE.MeshPhongMaterial({map: map, transparent: true});
      if (!overlay) {
       overlay = new THREE.Mesh(new THREE.SphereGeometry(201, 40, 40), material);
       overlay.rotation.y = Math.PI;
@@ -181,11 +262,31 @@ d3.json('data/world.json', function (err, data) {
     } else {
       overlay.material = material;
     }
-    
 
-    // **** end logic for highlighting countries **** //
+    if (window.pathData) {
+      for (var i = 0; i < window.pathData.length; i++) {
+        if (window.pathData[i].destination.id == currentCountry) {
+          if (currentIntersected)
+          {
+            currentIntersectedAlt = window.pathData[i].curveObject
+            currentIntersectedAlt.material.linewidth = window.lineSelectedThickness;
+            currentIntersectedAlt.childrenMovingGuys.forEach(function(movingGuy) {
+              movingGuy.movingGuy.material.linewidth = window.lineSelectedThickness;
+            });
+          }
+          else
+          {
+            currentIntersected = window.pathData[i].curveObject
+            currentIntersected.material.linewidth = window.lineSelectedThickness;
+            currentIntersected.childrenMovingGuys.forEach(function(movingGuy) {
+              movingGuy.movingGuy.material.linewidth = window.lineSelectedThickness;
+            });
+          }
+        }
+      }
+    }
 
-  } // end onGlobeMouseMove event handler
+  }
 
   function displayImportHover(selected1, selected2, val) {
     $("#curve_info_import").html(
@@ -225,10 +326,14 @@ d3.json('data/world.json', function (err, data) {
   var raycaster = new THREE.Raycaster();
   raycaster.linePrecision = 2;
   var currentIntersected = undefined;
+  var currentIntersectedAlt = undefined;
   window.addEventListener( 'mousemove', onMouseMove, false );
 
   function onMouseMove(event){
     event.preventDefault();
+
+    if (window.inPanels) return;
+
     mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
     mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1; 
 
@@ -238,6 +343,7 @@ d3.json('data/world.json', function (err, data) {
     if (!curves) {
       // no data is being displayed, make sure currentIntersected is undefined
       currentIntersected = undefined;
+      currentIntersectedAlt = undefined;
       clearDisplays();
     } else {
       // figure out what is being hovered over
@@ -267,30 +373,38 @@ d3.json('data/world.json', function (err, data) {
             movingGuy.movingGuy.material.linewidth = window.lineUnselectedThickness;
           });
         }
+        if ( currentIntersectedAlt != undefined )
+        {
+          currentIntersectedAlt.material.linewidth = window.lineUnselectedThickness;
+          currentIntersectedAlt.childrenMovingGuys.forEach(function(movingGuy) {
+            movingGuy.movingGuy.material.linewidth = window.lineUnselectedThickness;
+          });
+        }
         // make sure we know there is no selected curve
         currentIntersected = undefined;
+        currentIntersectedAlt = undefined;
 
         // then, use currentCountry to dictate the info panel
         // IF we are hovering over a country
         if (currentCountry) {
           var originInfo = window.params.countryName;
-          var destInfo = currentCountry;
+          var destinationCountry = currentCountry;
 
-          if (originInfo == destInfo) {
+          if (originInfo == destinationCountry) {
             selfDisplay();
           } else {
             var importVal = $('#import-table .' + despaceify(currentCountry)).text();
             var exportVal = $('#export-table .' + despaceify(currentCountry)).text();
 
             if (importVal.length > 0) {
-              displayImportHover(originInfo, destInfo, importVal);
+              displayImportHover(originInfo, destinationCountry, importVal);
             } else {
-              displayImportHoverNone(originInfo, destInfo);
+              displayImportHoverNone(originInfo, destinationCountry);
             }
             if (exportVal.length > 0) {
-              displayExportHover(originInfo, destInfo, exportVal);
+              displayExportHover(originInfo, destinationCountry, exportVal);
             } else {
-              displayExportHoverNone(originInfo, destInfo);
+              displayExportHoverNone(originInfo, destinationCountry);
             }
           }
         }
@@ -312,9 +426,16 @@ d3.json('data/world.json', function (err, data) {
               movingGuy.movingGuy.material.linewidth = window.lineUnselectedThickness;
             });
           }
+          if ( currentIntersectedAlt != undefined ) {
+            currentIntersectedAlt.material.linewidth = window.lineUnselectedThickness;
+            currentIntersectedAlt.childrenMovingGuys.forEach(function(movingGuy) {
+              movingGuy.movingGuy.material.linewidth = window.lineUnselectedThickness;
+            });
+          }
 
           // get current intersected curve
           currentIntersected = intersects[0];
+          currentIntersectedAlt = undefined;
 
           currentIntersected.material.linewidth = window.lineSelectedThickness;
           currentIntersected.childrenMovingGuys.forEach(function(movingGuy) {
@@ -323,7 +444,7 @@ d3.json('data/world.json', function (err, data) {
 
           var index = $.inArray(currentIntersected.uuid, window.all_curves_uuid);
           var originInfo = window.params.countryName;
-          var destInfo = window.pathData[index].destination.id;
+          destInfo = window.pathData[index].destination.id;
           var importVal = $('#import-table .' + despaceify(destInfo)).text();
           var exportVal = $('#export-table .' + despaceify(destInfo)).text();
 
@@ -443,10 +564,12 @@ animate();
 var panels = document.getElementsByClassName('panel');
 for(var i = 0; i < panels.length; i++){
   panels[i].addEventListener('mouseenter', function(){
+    window.inPanels = true;
     controls.enableZoom = false;
     controls.enableRotate = false;
   });
   panels[i].addEventListener('mouseleave', function(){
+    window.inPanels = false;
     controls.enableZoom = true;
     controls.enableRotate = true;
   });

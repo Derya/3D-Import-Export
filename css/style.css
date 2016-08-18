@@ -93,6 +93,14 @@ body, html {
   display: none;
 }
 
+#info-panel tr td:first-child {
+  cursor:pointer;
+}
+
+#info-panel tr td:first-child:hover, #info-panel tr td:first-child:hover ~ td {
+  border: 2px solid black;
+}
+
 #slider {
   margin: 10px 0 0 0;
   width: 100%;
