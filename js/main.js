@@ -39,7 +39,7 @@ function initialize(){
 }
 
 const OrbitControls = orbitControls.default(THREE);
-var curves; var arcDestinationCountry;
+var curves; var movingGuys;
 
 // var imagePrefix = "textures/";
 // var direction = ['front', 'back', 'right', 'left', 'up', 'down'];
@@ -122,7 +122,7 @@ d3.json('data/world.json', function (err, data) {
     if (window.inPanels) return;
 
     if (hoveringLine) {
-      currentCountry = arcDestinationCountry;
+
     } else {
       // Get pointc, convert to latitude/longitude
       var latlng = getEventCenter.call(this, event);
@@ -139,8 +139,6 @@ d3.json('data/world.json', function (err, data) {
         currentCountry = country.code;
       }
     }
-
-    selectCountry();
 
   } // end onGlobeMouseMove event handler
 
@@ -331,19 +329,7 @@ d3.json('data/world.json', function (err, data) {
       // figure out what is being hovered over
       raycaster.setFromCamera( mouse, camera );
       // intersects will be array of curve and moving guy objects that the mouse is hovering over
-      var allIntersects = raycaster.intersectObjects( curves.children , true );
-      var intersects = [];
-
-      // filter intersects to just the curves
-      for (var i = 0; i < allIntersects.length; i++)
-      {
-        if (allIntersects[i].object.isCurve) {
-          var intersectsWithGlobe = raycaster.intersectObjects( [allIntersects[i].object, baseGlobe] , true );
-          if (intersectsWithGlobe[0].object == allIntersects[i].object) {
-            intersects.push(allIntersects[i].object);
-          }
-        }
-      }
+      var intersects = raycaster.intersectObjects( curves.children , true );
 
       // check to make sure the raycaster found anything
       // IF raycaster found nothing
@@ -365,19 +351,25 @@ d3.json('data/world.json', function (err, data) {
       } else {
 
         hoveringLine = true;
-        var index = $.inArray(intersects[0].uuid, window.all_curves_uuid);
-        arcDestinationCountry = window.pathData[index].destination.id;
+        var index = $.inArray(intersects[0].object.uuid, window.all_curves_uuid);
+        currentCountry = window.pathData[index].destination.id;
 
       } // end else statement for condition to make sure raycaster found anything
 
     } // end if curves conditional for logic to highlight arc paths for arc path under the mouse
+
+    selectCountry();
+
   }
 
   function magicRedraw(){
     root.remove(curves);
+    root.remove(movingGuys);
     curves = new THREE.Object3D();
-    drawData(window.params.country, window.params.format, window.params.sitc_id, countryArr, curves);      
+    movingGuys = new THREE.Object3D();
+    drawData(window.params.country, window.params.format, window.params.sitc_id, countryArr, curves, movingGuys);      
     root.add(curves);
+    root.add(movingGuys);
   }
 
   function clickToRedraw(event){

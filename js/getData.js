@@ -46,7 +46,7 @@ function getHexCode(tradePercent, importQuestionMark) {
 
 // draw either import or export data or both evidently, depending on input data
 
-function drawData(country, format, product, countryArr, curves){
+function drawData(country, format, product, countryArr, curves, movingGuys){
   // note: curves variable that we are passing reference to in parameters for this function
   // is a wrapper for more than just the curve objects, all the moving arrow objects are held in it as well
 
@@ -111,7 +111,8 @@ function drawData(country, format, product, countryArr, curves){
           try {
             // definetely import
             arcpath(originCountry, destCountry, colorDraw, true, trade.import_val, tradePercent, function(err, objects) {
-              for (var i = 0; i < objects.length; i++) curves.add(objects[i]);
+              curves.add(objects.curve);
+              for (var i = 0; i < objects.movingGuys.length; i++) movingGuys.add(objects.movingGuys[i]);
             });
           }
           catch(err) {
@@ -140,8 +141,8 @@ function drawData(country, format, product, countryArr, curves){
           try {
             // definetely export
             arcpath(originCountry, destCountry, colorDraw, false, trade.export_val, tradePercent, function(err, objects) {
-              for (var i = 0; i < objects.length; i++) curves.add(objects[i]);
-
+              curves.add(objects.curve);
+              for (var i = 0; i < objects.movingGuys.length; i++) movingGuys.add(objects.movingGuys[i]);
             });
           }
           catch(err) {

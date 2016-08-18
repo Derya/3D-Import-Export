@@ -91,7 +91,10 @@ function arcpath(originCountry, destCountry, colorToDraw, importQuestionMark, va
   // this is not necessary to have seperate from the above array, but the rest of the code is structured to accomodate it this way 
   // so I am letting it be for now. this array is used at the bottom, in the callback function
   // start with just the curve object, add the moving guys in the loop below
-  var returnObjArr = [curveObject];
+  var returnObjArr = {
+    curve: curveObject,
+    movingGuys: []
+  };
 
   // speed we want, in length units (not in %)
   const speedReal = map(tradePercent, 0, 100, 0.1, 1);
@@ -121,7 +124,7 @@ function arcpath(originCountry, destCountry, colorToDraw, importQuestionMark, va
       newMovingGuy.parentCurve = curve;
 
       // push to object wrapper array
-      returnObjArr.push(newMovingGuy);
+      returnObjArr.movingGuys.push(newMovingGuy);
 
       // push again to window data array along with other info
       movingGuys.push({

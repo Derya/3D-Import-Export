@@ -174,7 +174,7 @@ body, html {
   bottom: 2em;
   background: white;
   list-style-type: none;
-  z-index: 1;
+  z-index: 2;
 }
 
 #search-result li {
