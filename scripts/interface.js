@@ -27,6 +27,12 @@ $('#slider').slider({
     }
 });
 
+$('.clear').on('click', function(){
+    $('#product-name').text("All");
+    window.params.sitc_id = 000000;
+    redraw();
+});
+
 
 $('.show').on('click', function(){
     $('#info-panel').toggle();
