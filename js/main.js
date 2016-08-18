@@ -49,12 +49,12 @@ var materialArray = [];
 for(var j = 0; j < 6; j++){
   materialArray.push(new THREE.MeshBasicMaterial({
     // map: THREE.ImageUtils.loadTexture( imagePrefix + direction[j] + imageSuffix),
-    map: THREE.ImageUtils.loadTexture( "textures/all.gif"),
+    map: THREE.ImageUtils.loadTexture( "textures/most.jpg"),
     side: THREE.BackSide
   }));
 }
 
-var skyGeometry = new THREE.CubeGeometry(8000,8000,8000);
+var skyGeometry = new THREE.CubeGeometry(5000,5000,5000);
 var skyMaterial = new THREE.MeshFaceMaterial(materialArray);
 var skyBox = new THREE.Mesh(skyGeometry, skyMaterial);
 
