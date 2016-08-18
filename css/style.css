@@ -126,7 +126,7 @@ body, html {
 }
 
 .curve_info{
-  background-color: black;
+  background-color: transparent;
   color: white;
   padding: 5px;
   border-radius: 5px;
