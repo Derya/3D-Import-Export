@@ -39,7 +39,7 @@ function initialize(){
 }
 
 const OrbitControls = orbitControls.default(THREE);
-var curves; var destInfo;
+var curves; var arcDestinationCountry;
 
 // var imagePrefix = "textures/";
 // var direction = ['front', 'back', 'right', 'left', 'up', 'down'];
@@ -75,6 +75,7 @@ var mouse = new THREE.Vector2();
 d3.json('data/world.json', function (err, data) {
   initialize();
   var currentCountry, currentCountryObj, selectedCountry, overlay;
+  var hoveringLine = false;
   var segments = 155; // number of vertices. Higher = better mouse accuracy
 
   // Setup cache for country textures
@@ -91,9 +92,6 @@ d3.json('data/world.json', function (err, data) {
   let sphere = new THREE.SphereGeometry(GLOBE_RADIUS, segments, segments);
   let baseGlobe = new THREE.Mesh(sphere, blueMaterial);
   baseGlobe.rotation.y = Math.PI;
-
-  // TODO: implement this!
-  //baseGlobe.addEventListener('ondblclick', onGlobeClick);
 
   baseGlobe.addEventListener('click', clickToRedraw);
   baseGlobe.addEventListener('mousemove', onGlobeMousemove);
@@ -115,33 +113,6 @@ d3.json('data/world.json', function (err, data) {
   root.add(baseMap);
   scene.add(root);
 
-  function onGlobeClick(event) { 
-    console.log("globe double click!");
-    // Get pointc, convert to latitude/longitude
-    var latlng = getEventCenter.call(this, event);
-    console.log("latitude: " + latlng[0] + " longitude: " + latlng[1]);
-    // Get new camera position
-    var temp = new THREE.Mesh();
-    temp.position.copy(convertToXYZ(latlng, 900));
-    console.log(root.position);
-    temp.lookAt(root.position);
-    temp.rotateY(Math.PI);
-
-    for (let key in temp.rotation) {
-      if (temp.rotation[key] - camera.rotation[key] > Math.PI) {
-        temp.rotation[key] -= Math.PI * 2;
-      } else if (camera.rotation[key] - temp.rotation[key] > Math.PI) {
-        temp.rotation[key] += Math.PI * 2;
-      }
-    }
-
-    var tweenPos = getTween.call(camera, 'position', temp.position);
-    d3.timer(tweenPos);
-
-    var tweenRot = getTween.call(camera, 'rotation', temp.rotation);
-    d3.timer(tweenRot);
-  }
-
   function getCountryByFullName(query, arr) {return arr.find(function(q) {return q.id == query});}
 
   function getCurveByCountryObj(query, arr) {return arr.find(function(q) {return q.destination == query})}
@@ -150,8 +121,8 @@ d3.json('data/world.json', function (err, data) {
 
     if (window.inPanels) return;
 
-    if (currentIntersected !== undefined) {
-      currentCountry = destInfo;
+    if (hoveringLine) {
+      currentCountry = arcDestinationCountry;
     } else {
       // Get pointc, convert to latitude/longitude
       var latlng = getEventCenter.call(this, event);
@@ -202,50 +173,20 @@ d3.json('data/world.json', function (err, data) {
 
     currentCountry = countryClickedName;
 
-    // deselect previous curve
-    if ( currentIntersected != undefined ) {
-      currentIntersected.material.linewidth = window.lineUnselectedThickness;
-      currentIntersected.childrenMovingGuys.forEach(function(movingGuy) {
-        movingGuy.movingGuy.material.linewidth = window.lineUnselectedThickness;
-      });
-    }
-    if ( currentIntersectedAlt != undefined ) {
-      currentIntersectedAlt.material.linewidth = window.lineUnselectedThickness;
-      currentIntersectedAlt.childrenMovingGuys.forEach(function(movingGuy) {
-        movingGuy.movingGuy.material.linewidth = window.lineUnselectedThickness;
-      });
-    }
-    // make sure we know there is no selected curve
-    currentIntersected = undefined;
-    currentIntersectedAlt = undefined;
-
-    // then, use currentCountry to dictate the info panel
-    var originInfo = window.params.countryName;
-    var destinationCountry = currentCountry;
-
-    if (originInfo == destinationCountry) {
-      selfDisplay();
-    } else {
-      var importVal = $('#import-table .' + despaceify(currentCountry)).text();
-      var exportVal = $('#export-table .' + despaceify(currentCountry)).text();
-
-      if (importVal.length > 0) {
-        displayImportHover(originInfo, destinationCountry, importVal);
-      } else {
-        displayImportHoverNone(originInfo, destinationCountry);
-      }
-      if (exportVal.length > 0) {
-        displayExportHover(originInfo, destinationCountry, exportVal);
-      } else {
-        displayExportHoverNone(originInfo, destinationCountry);
-      }
-    }
-
     selectCountry();
 
   });
 
+  var oldSelectedCountry;
   function selectCountry() {
+
+    if (oldSelectedCountry === currentCountry) {
+      return;
+    }
+
+    deselectLines();
+
+    oldSelectedCountry = currentCountry;
 
     currentCountryObj = getCountryByFullName(currentCountry, countryArr);
 
@@ -266,15 +207,7 @@ d3.json('data/world.json', function (err, data) {
     if (window.pathData) {
       for (var i = 0; i < window.pathData.length; i++) {
         if (window.pathData[i].destination.id == currentCountry) {
-          if (currentIntersected)
-          {
-            currentIntersectedAlt = window.pathData[i].curveObject
-            currentIntersectedAlt.material.linewidth = window.lineSelectedThickness;
-            currentIntersectedAlt.childrenMovingGuys.forEach(function(movingGuy) {
-              movingGuy.movingGuy.material.linewidth = window.lineSelectedThickness;
-            });
-          }
-          else
+          if (window.pathData[i].importQuestionMark)
           {
             currentIntersected = window.pathData[i].curveObject
             currentIntersected.material.linewidth = window.lineSelectedThickness;
@@ -282,7 +215,37 @@ d3.json('data/world.json', function (err, data) {
               movingGuy.movingGuy.material.linewidth = window.lineSelectedThickness;
             });
           }
+          else
+          {
+            currentIntersectedExp = window.pathData[i].curveObject
+            currentIntersectedExp.material.linewidth = window.lineSelectedThickness;
+            currentIntersectedExp.childrenMovingGuys.forEach(function(movingGuy) {
+              movingGuy.movingGuy.material.linewidth = window.lineSelectedThickness;
+            });
+
+          }
         }
+      }
+    }
+
+    var originInfo = window.params.countryName;
+    var destinationCountry = currentCountry;
+
+    if (originInfo == destinationCountry) {
+      selfDisplay();
+    } else {
+      var importVal = $('#import-table .' + despaceify(currentCountry)).text();
+      var exportVal = $('#export-table .' + despaceify(currentCountry)).text();
+
+      if (importVal.length > 0) {
+        displayImportHover(originInfo, destinationCountry, importVal);
+      } else {
+        displayImportHoverNone(originInfo, destinationCountry);
+      }
+      if (exportVal.length > 0) {
+        displayExportHover(originInfo, destinationCountry, exportVal);
+      } else {
+        displayExportHoverNone(originInfo, destinationCountry);
       }
     }
 
@@ -326,8 +289,28 @@ d3.json('data/world.json', function (err, data) {
   var raycaster = new THREE.Raycaster();
   raycaster.linePrecision = 2;
   var currentIntersected = undefined;
-  var currentIntersectedAlt = undefined;
+  var currentIntersectedExp = undefined;
   window.addEventListener( 'mousemove', onMouseMove, false );
+
+  function deselectLines() {
+    // deselect previous curve
+    if ( currentIntersected != undefined ) {
+      currentIntersected.material.linewidth = window.lineUnselectedThickness;
+      currentIntersected.childrenMovingGuys.forEach(function(movingGuy) {
+        movingGuy.movingGuy.material.linewidth = window.lineUnselectedThickness;
+      });
+    }
+    if ( currentIntersectedExp != undefined )
+    {
+      currentIntersectedExp.material.linewidth = window.lineUnselectedThickness;
+      currentIntersectedExp.childrenMovingGuys.forEach(function(movingGuy) {
+        movingGuy.movingGuy.material.linewidth = window.lineUnselectedThickness;
+      });
+    }
+    // make sure we know there is no selected curve
+    currentIntersected = undefined;
+    currentIntersectedExp = undefined;
+  }
 
   function onMouseMove(event){
     event.preventDefault();
@@ -335,15 +318,14 @@ d3.json('data/world.json', function (err, data) {
     if (window.inPanels) return;
 
     mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1; 
-
-    // **** begin logic for highlighting hovered arc **** //
+    mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
     // check if any data is being displayed
     if (!curves) {
       // no data is being displayed, make sure currentIntersected is undefined
       currentIntersected = undefined;
-      currentIntersectedAlt = undefined;
+      currentIntersectedExp = undefined;
+      hoveringLine = false;
       clearDisplays();
     } else {
       // figure out what is being hovered over
@@ -366,47 +348,13 @@ d3.json('data/world.json', function (err, data) {
       // check to make sure the raycaster found anything
       // IF raycaster found nothing
       if ( intersects.length <= 0 ) {
-        // deselect previous curve
-        if ( currentIntersected != undefined ) {
-          currentIntersected.material.linewidth = window.lineUnselectedThickness;
-          currentIntersected.childrenMovingGuys.forEach(function(movingGuy) {
-            movingGuy.movingGuy.material.linewidth = window.lineUnselectedThickness;
-          });
-        }
-        if ( currentIntersectedAlt != undefined )
-        {
-          currentIntersectedAlt.material.linewidth = window.lineUnselectedThickness;
-          currentIntersectedAlt.childrenMovingGuys.forEach(function(movingGuy) {
-            movingGuy.movingGuy.material.linewidth = window.lineUnselectedThickness;
-          });
-        }
-        // make sure we know there is no selected curve
-        currentIntersected = undefined;
-        currentIntersectedAlt = undefined;
+
+        hoveringLine = false;
 
         // then, use currentCountry to dictate the info panel
         // IF we are hovering over a country
         if (currentCountry) {
-          var originInfo = window.params.countryName;
-          var destinationCountry = currentCountry;
 
-          if (originInfo == destinationCountry) {
-            selfDisplay();
-          } else {
-            var importVal = $('#import-table .' + despaceify(currentCountry)).text();
-            var exportVal = $('#export-table .' + despaceify(currentCountry)).text();
-
-            if (importVal.length > 0) {
-              displayImportHover(originInfo, destinationCountry, importVal);
-            } else {
-              displayImportHoverNone(originInfo, destinationCountry);
-            }
-            if (exportVal.length > 0) {
-              displayExportHover(originInfo, destinationCountry, exportVal);
-            } else {
-              displayExportHoverNone(originInfo, destinationCountry);
-            }
-          }
         }
         // ELSE we are not hovering over a country
         else {
@@ -415,57 +363,14 @@ d3.json('data/world.json', function (err, data) {
 
       // ELSE raycaster found a curve
       } else {
-        // we only need to do operations if the new curve the mouse is over is different from 
-        // the previous currentIntersected, or the previous doesnt exist
-        if (currentIntersected == undefined || currentIntersected != intersects[0])
-        {
-          // deselect previous curve
-          if ( currentIntersected != undefined ) {
-            currentIntersected.material.linewidth = window.lineUnselectedThickness;
-            currentIntersected.childrenMovingGuys.forEach(function(movingGuy) {
-              movingGuy.movingGuy.material.linewidth = window.lineUnselectedThickness;
-            });
-          }
-          if ( currentIntersectedAlt != undefined ) {
-            currentIntersectedAlt.material.linewidth = window.lineUnselectedThickness;
-            currentIntersectedAlt.childrenMovingGuys.forEach(function(movingGuy) {
-              movingGuy.movingGuy.material.linewidth = window.lineUnselectedThickness;
-            });
-          }
 
-          // get current intersected curve
-          currentIntersected = intersects[0];
-          currentIntersectedAlt = undefined;
-
-          currentIntersected.material.linewidth = window.lineSelectedThickness;
-          currentIntersected.childrenMovingGuys.forEach(function(movingGuy) {
-            movingGuy.movingGuy.material.linewidth = window.lineSelectedThickness;
-          });
-
-          var index = $.inArray(currentIntersected.uuid, window.all_curves_uuid);
-          var originInfo = window.params.countryName;
-          destInfo = window.pathData[index].destination.id;
-          var importVal = $('#import-table .' + despaceify(destInfo)).text();
-          var exportVal = $('#export-table .' + despaceify(destInfo)).text();
-
-          if (importVal.length > 0) {
-            displayImportHover(originInfo, destInfo, importVal);
-          } else {
-            displayImportHoverNone(originInfo, destInfo);
-          }
-          if (exportVal.length > 0) {
-            displayExportHover(originInfo, destInfo, exportVal);
-          } else {
-            displayExportHoverNone(originInfo, destInfo);
-          }
-
-        }
+        hoveringLine = true;
+        var index = $.inArray(intersects[0].uuid, window.all_curves_uuid);
+        arcDestinationCountry = window.pathData[index].destination.id;
 
       } // end else statement for condition to make sure raycaster found anything
 
     } // end if curves conditional for logic to highlight arc paths for arc path under the mouse
-
-    // **** end logic for highlighting hovered arc **** //
   }
 
   function magicRedraw(){
